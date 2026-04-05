@@ -5,7 +5,7 @@ type createWorkspaceInput={
     slug: string;
 }
 
-export const creteWorkspace =async (userId: string, data: createWorkspaceInput) => {
+export const createWorkspace =async (userId: string, data: createWorkspaceInput) => {
     try {
         const workspace = await prisma.$transaction(async (tx)=>{
             const createWorkspace = await tx.workspace.create({
