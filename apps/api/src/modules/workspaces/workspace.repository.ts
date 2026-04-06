@@ -1,15 +1,18 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma"
+import { PrismaClient } from "@prisma/client"
 
 type CreateWorkspaceInput = {
-  name: string;
-  slug: string;
+  name: string
+  slug: string
 }
+
+type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
 export const createWorkspaceWithOwner = async (
   userId: string,
   data: CreateWorkspaceInput
 ) => {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: TransactionClient) => {
     const workspace = await tx.workspace.create({
       data: {
         name: data.name,
@@ -25,6 +28,6 @@ export const createWorkspaceWithOwner = async (
       }
     })
 
-    return workspace;
+    return workspace
   })
-};
+}

@@ -3,6 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { requestId } from '@/middleware/requestId'
 import { errorHandler } from '@/middleware/errorHandler'
+import workspaceRoutes from "@/modules/workspaces/workspace.routes";
 
 export const createApp = () => {
   const app = express()
@@ -12,14 +13,9 @@ export const createApp = () => {
   app.use(express.json())
   app.use(requestId)
 
-  app.get('/health', (req, res) => {
-    res.json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-    })
-  })
-
+  app.use("/workspaces", workspaceRoutes)
+  
   app.use(errorHandler)
-
+  
   return app
 }
