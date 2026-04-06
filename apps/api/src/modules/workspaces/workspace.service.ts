@@ -1,4 +1,5 @@
 import { createWorkspaceWithOwner } from "./workspace.repository";
+import {findWorkspacesByUserId} from "./workspace.repository";
 
 type CreateWorkspaceInput = {
   name: string;
@@ -19,3 +20,16 @@ export const createWorkspace = async (
     throw error;
   }
 };
+
+export const getUserWorkspaces =async (userId: string) => {
+  const workspaces =  await findWorkspacesByUserId(userId);
+
+  return workspaces.map(item => ({
+    id: item.workspace.id,
+    name: item.workspace.name,
+    slug: item.workspace.slug,
+    createdAt: item.workspace.createdAt,
+    role: item.role
+  })
+  )
+}
