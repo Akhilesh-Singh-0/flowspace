@@ -3,7 +3,7 @@ import {createWorkspace,  getUserWorkspaces} from "./workspace.service";
 
 export const createWorkspaceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = "temp-user-id";
+      const userId = req.user!.userId;
   
       const workspace = await createWorkspace(userId, req.body);
   
@@ -18,7 +18,7 @@ export const createWorkspaceHandler = async (req: Request, res: Response, next: 
 
 export const getWorkspaceHandler =async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = "temp-user-id";
+    const userId = req.user!.userId;
 
     const workspaces = await getUserWorkspaces(userId);
 
