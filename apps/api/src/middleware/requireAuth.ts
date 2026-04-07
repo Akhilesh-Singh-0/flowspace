@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "@clerk/backend";
 
-export const authMiddleware =async (req: Request, res: Response,  next: NextFunction) => {
+interface AuthRequest extends Request {
+    user?: {
+      userId: string;
+    };
+  }
+
+export const authMiddleware =async (req: AuthRequest, res: Response,  next: NextFunction) => {
     try {
         const authHeader = req.headers.authorization;
 
@@ -24,7 +30,7 @@ export const authMiddleware =async (req: Request, res: Response,  next: NextFunc
                 message: "Unauthorized"
             })
         }
-
+        
         req.user = { userId: verified.sub };
 
         next();

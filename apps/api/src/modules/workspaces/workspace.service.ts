@@ -24,8 +24,8 @@ export const createWorkspace = async (
 export const getUserWorkspaces =async (userId: string) => {
   const workspaces =  await findWorkspacesByUserId(userId);
 
-  return workspaces.map(item => ({
-    id: item.workspace.id,
+  return workspaces.map((item: typeof workspaces[0]) => ({
+    id: item.workspace.id,       
     name: item.workspace.name,
     slug: item.workspace.slug,
     createdAt: item.workspace.createdAt,
