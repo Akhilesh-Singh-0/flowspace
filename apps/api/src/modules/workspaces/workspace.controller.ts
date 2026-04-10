@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import {createWorkspace,  getUserWorkspaces, addWorkspaceMember} from "./workspace.service";
+import {createWorkspace,  getUserWorkspaces, addWorkspaceMember, getWorkspaceMembers} from "./workspace.service";
 
 export const createWorkspaceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      
       const userId = req.user!.userId;
   
       const workspace = await createWorkspace(userId, req.body);
@@ -44,6 +45,23 @@ export const addWorkspaceMemberHandler =async (req: Request, res: Response, next
       success: true,
       data: workspaceMember
     })
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const getWorkspaceMembersHandler =async (req: Request, res: Response, next: NextFunction) => {
+  try {
+
+    const requesterId = req.user!.userId;
+    const workspaceId = req.params.id as string;
+
+    const workspaceMembers = await getWorkspaceMembers(requesterId, workspaceId)
+
+    return res.status(200).json({
+    success: true,
+    data: workspaceMembers
+  })
   } catch (error) {
     next(error);
   }

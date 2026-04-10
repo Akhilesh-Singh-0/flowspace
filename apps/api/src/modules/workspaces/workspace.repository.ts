@@ -115,3 +115,10 @@ export const findWorkspaceMembers =async (workspaceId: string) => {
     }
   })
 }
+
+export const findUserByClerkId = async (clerkId: string) => {
+  return prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true }
+  })
+}
