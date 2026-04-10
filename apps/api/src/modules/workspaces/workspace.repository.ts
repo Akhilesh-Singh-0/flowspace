@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma"
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, WorkspaceRole } from "@prisma/client"
 
 type CreateWorkspaceInput = {
   name: string
@@ -45,6 +45,71 @@ export const findWorkspacesByUserId =async (userId: string) => {
           name: true,
           slug: true,
           createdAt: true
+        }
+      }
+    }
+  })
+}
+
+export const findWorkspaceMember =async (userId : string, workspaceId : string) => {
+  return prisma.workspaceMember.findUnique({
+    where: {
+      userId_workspaceId: {
+        userId,
+        workspaceId
+      }
+    },
+    select:{
+      role: true
+    }
+  })
+}
+
+export const findUserById =async (userId : string) => {
+  return prisma.user.findUnique({
+    where : {
+      id: userId
+    },
+    select: {
+      id: true
+    }
+  })
+}
+
+export const createWorkspaceMember =async (userId: string, workspaceId: string, role: WorkspaceRole) => {
+  const workspaceMember = await prisma.workspaceMember.create({
+    data: {
+      userId,
+      workspaceId,
+      role: role
+    }
+  })
+  return workspaceMember
+}
+
+export const deleteWorkspaceMember = async (userId: string, workspaceId: string) => {
+  return prisma.workspaceMember.delete({
+    where: {
+      userId_workspaceId: {
+        userId,
+        workspaceId
+      }
+    }
+  })
+}
+
+export const findWorkspaceMembers =async (workspaceId: string) => {
+  return prisma.workspaceMember.findMany({
+    where: {
+      workspaceId
+    }, select: {
+      role: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true
         }
       }
     }

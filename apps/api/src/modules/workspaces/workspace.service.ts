@@ -1,5 +1,11 @@
+import { WorkspaceRole } from "@prisma/client";
 import { createWorkspaceWithOwner } from "./workspace.repository";
-import {findWorkspacesByUserId} from "./workspace.repository";
+import { findWorkspacesByUserId}  from "./workspace.repository";
+import { findWorkspaceMember } from "./workspace.repository";
+import { findUserById } from "./workspace.repository";
+import { createWorkspaceMember } from "./workspace.repository";
+import { deleteWorkspaceMember } from "./workspace.repository";
+import { findWorkspaceMembers } from "./workspace.repository";
 
 type CreateWorkspaceInput = {
   name: string;
@@ -32,4 +38,24 @@ export const getUserWorkspaces =async (userId: string) => {
     role: item.role
   })
   )
+}
+
+export const addWorkspaceMember = async (requesterId: string, workspaceId: string, targetUserId: string, role: WorkspaceRole) => {
+
+  const requesterMember = await findWorkspaceMember(requesterId, workspaceId)
+  if(!requesterMember || !['OWNER', 'ADMIN'].includes(requesterMember.role)){
+    throw new Error("Forbidden")
+  } 
+
+  const userExist = await findUserById(targetUserId)
+  if(!userExist){
+    throw new Error("User does not exist")
+  }
+
+  const alreadyMember = await findWorkspaceMember(targetUserId, workspaceId)
+  if(alreadyMember){
+    throw new Error("User is already a member")
+  }
+
+  return createWorkspaceMember(targetUserId, workspaceId, role)
 }
