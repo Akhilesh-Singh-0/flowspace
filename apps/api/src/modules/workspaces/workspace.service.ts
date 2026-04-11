@@ -133,10 +133,10 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
   }
 
   if(requester.role === "ADMIN"){
-    if(target.role === "OWNER"){
-      throw new AppError("Admin cannot remove owner", 403)
+    if(target.role === "OWNER" || target.role === "ADMIN"){
+      throw new AppError("Admin cannot remove owner or admin", 403)
     }
-
+  
     await deleteWorkspaceMember(workspaceId, targetUserId)
     return
   }

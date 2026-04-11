@@ -35,7 +35,7 @@ export const getWorkspaceHandler = async (req: Request, res: Response, next: Nex
 export const addWorkspaceMemberHandler =async (req: Request, res: Response, next: NextFunction) => {
   try {
     const requesterId = req.user!.userId;
-    const workspaceId = req.params.id as string;
+    const workspaceId = req.params.workspaceId as string;
     const targetUserId = req.body.targetUserId;
     const role = req.body.role;
 
@@ -54,7 +54,7 @@ export const getWorkspaceMembersHandler =async (req: Request, res: Response, nex
   try {
 
     const requesterId = req.user!.userId;
-    const workspaceId = req.params.id as string;
+    const workspaceId = req.params.workspaceId as string;
 
     const workspaceMembers = await getWorkspaceMembers(requesterId, workspaceId)
 
@@ -70,11 +70,7 @@ export const getWorkspaceMembersHandler =async (req: Request, res: Response, nex
 export const removeWorkspaceMemberHandler =async (req: Request, res: Response, next: NextFunction) =>{
   try {
 
-    if (!req.user) {
-      throw new Error("Unauthorized")
-    }
-
-    const requesterId = req.user.userId;
+    const requesterId = req.user!.userId;
     const workspaceId = req.params.workspaceId as string;
     const targetUserId = req.params.userId as string;
 

@@ -9,8 +9,7 @@ import {
 
 import {
   WorkspaceInput,
-  addMember,
-  removeMemberParams
+  addMember
 } from './workspace.schema'
 
 import { validate } from '@/middleware/validate'
@@ -47,7 +46,6 @@ router.get(
 router.delete(
   "/:workspaceId/members/:userId",
   authMiddleware,
-  validate(removeMemberParams),
   removeWorkspaceMemberHandler
 )
 
