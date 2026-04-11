@@ -7,7 +7,13 @@ export const WorkspaceInput = z.object({
 export type WorkspaceInputType = z.infer<typeof WorkspaceInput>
 
 export const addMember = z.object({
-    targetUserId: z.string().min(1),
+    userId: z.string().min(1),
     role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']).default('MEMBER')
 })
 export type AddMemberType = z.infer<typeof addMember>
+
+export const removeMemberParams = z.object({
+    workspaceId: z.string().min(1),
+    userId: z.string().min(1),
+  })
+export type RemoveMemberParamsType = z.infer<typeof removeMemberParams>

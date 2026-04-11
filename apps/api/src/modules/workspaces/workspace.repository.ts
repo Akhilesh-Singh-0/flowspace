@@ -60,6 +60,8 @@ export const findWorkspaceMember =async (userId : string, workspaceId : string) 
       }
     },
     select:{
+      userId: true,
+      workspaceId: true,
       role: true
     }
   })
@@ -87,7 +89,7 @@ export const createWorkspaceMember =async (userId: string, workspaceId: string, 
   return workspaceMember
 }
 
-export const deleteWorkspaceMember = async (userId: string, workspaceId: string) => {
+export const deleteWorkspaceMember = async (workspaceId: string, userId: string) => {
   return prisma.workspaceMember.delete({
     where: {
       userId_workspaceId: {
@@ -112,6 +114,15 @@ export const findWorkspaceMembers =async (workspaceId: string) => {
           avatarUrl: true
         }
       }
+    }
+  })
+}
+
+export const countWorkspaceOwners =async (workspaceId: string) => {
+  return prisma.workspaceMember.count({
+    where: {
+      workspaceId,
+      role: "OWNER"
     }
   })
 }

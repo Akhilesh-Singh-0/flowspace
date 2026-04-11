@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import {createWorkspace,  getUserWorkspaces, addWorkspaceMember, getWorkspaceMembers} from "./workspace.service";
+import {createWorkspace,  getUserWorkspaces, addWorkspaceMember, getWorkspaceMembers, removeWorkspaceMember} from "./workspace.service";
 
 export const createWorkspaceHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -61,6 +61,28 @@ export const getWorkspaceMembersHandler =async (req: Request, res: Response, nex
     return res.status(200).json({
     success: true,
     data: workspaceMembers
+  })
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const removeWorkspaceMemberHandler =async (req: Request, res: Response, next: NextFunction) =>{
+  try {
+
+    if (!req.user) {
+      throw new Error("Unauthorized")
+    }
+
+    const requesterId = req.user.userId;
+    const workspaceId = req.params.workspaceId as string;
+    const targetUserId = req.params.userId as string;
+
+    await removeWorkspaceMember(requesterId, targetUserId, workspaceId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Member removed successfully"
   })
   } catch (error) {
     next(error);
