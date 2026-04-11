@@ -11,10 +11,10 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node --compiler-options {\"types\":[\"node\"],\"module\":\"commonjs\",\"esModuleInterop\":true} prisma/seed.ts"
+    "db:seed": "ts-node --project prisma/tsconfig.seed.json prisma/seed.ts"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"types\":[\"node\"],\"module\":\"commonjs\",\"esModuleInterop\":true} prisma/seed.ts"
+    "seed": "ts-node --project prisma/tsconfig.seed.json prisma/seed.ts"
   },
   "dependencies": {
     "@clerk/backend": "^3.2.7",
