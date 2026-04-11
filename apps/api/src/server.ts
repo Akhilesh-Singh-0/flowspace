@@ -1,10 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config({
-  path: require("path").resolve(__dirname, "../.env"),
-});
-
-console.log("ENV CHECK:", process.env.DATABASE_URL);
 import { createApp } from '@/app'
 import { env } from '@/config/env'
 import { logger } from '@/lib/logger'

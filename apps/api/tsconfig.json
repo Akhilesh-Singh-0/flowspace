@@ -11,11 +11,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
+  "files": ["src/types/express.d.ts"],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

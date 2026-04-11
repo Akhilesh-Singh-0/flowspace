@@ -3,6 +3,15 @@ import { ZodError } from 'zod'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { logger } from '@/lib/logger'
 
+export class AppError extends Error {
+  constructor(
+    public message: string,
+    public statusCode: number
+  ) {
+    super(message);
+  }
+}
+
 export const errorHandler = (
   err: unknown,
   req: Request,
@@ -30,6 +39,15 @@ export const errorHandler = (
       success: false,
       data: null,
       error: { code: 'CONFLICT', message: 'Resource already exists' },
+      requestId,
+    })
+  }
+
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      data: null,
+      error: { code: 'APP_ERROR', message: err.message },
       requestId,
     })
   }
