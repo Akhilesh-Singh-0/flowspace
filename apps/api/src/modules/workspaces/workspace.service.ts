@@ -105,7 +105,9 @@ const ensureNotLastOwner = async (workspaceId: string) => {
 
 export const removeWorkspaceMember = async (requesterId: string, targetUserId: string, workspaceId: string) => {
   
-  const requester = await findWorkspaceMember(requesterId, workspaceId)
+  const dbUser = await findUserByClerkId(requesterId)
+  if(!dbUser) throw new AppError("User not found", 404)
+  const requester = await findWorkspaceMember(dbUser.id, workspaceId)
   const target = await findWorkspaceMember(targetUserId, workspaceId)
 
   if(!requester){
