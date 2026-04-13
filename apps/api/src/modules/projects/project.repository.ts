@@ -14,3 +14,16 @@ export const createProject = async (workspaceId: string, data: ProjectInput) => 
     }
   })
 }
+
+export const viewProject =async (workspaceId: string) => {
+  return prisma.project.findMany({
+    where: {
+      workspaceId
+    }, select: {
+      id: true,
+      title: true,
+      description: true,
+      createdAt: true 
+    }
+  })
+}

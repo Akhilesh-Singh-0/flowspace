@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { addProject } from "./project.service";
+import { addProject, getProjects } from "./project.service";
 
 export const createProjectHandler =async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -14,6 +14,21 @@ export const createProjectHandler =async (req: Request, res: Response, next: Nex
         data: project
        })
 
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getProjectsHandler = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const workspaceId = req.params.id as string;
+
+        const projects = await getProjects(workspaceId)
+
+        return res.status(200).json({
+        success: true,
+        data: projects
+    })
     } catch (error) {
         next(error)
     }
