@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import { requestId } from '@/middleware/requestId'
 import { errorHandler } from '@/middleware/errorHandler'
 import workspaceRoutes from "@/modules/workspaces/workspace.routes";
+import projectRoutes from "@/modules/projects/project.routes"
 import webhookRoute from "@/modules/auth/auth.routes"
 
 export const createApp = () => {
@@ -17,7 +18,7 @@ export const createApp = () => {
 
   app.use("/auth", webhookRoute)
   app.use("/workspaces", workspaceRoutes)
-  
+  app.use("/workspaces", projectRoutes)
   app.use(errorHandler)
   
   return app
