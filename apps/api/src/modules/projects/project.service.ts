@@ -1,4 +1,4 @@
-import { createProject, viewProject } from "./project.repository"
+import { createProject, viewProject, editProject } from "./project.repository"
 import { AppError } from "@/middleware/errorHandler"
 
 type ProjectInput = {
@@ -12,4 +12,8 @@ export const addProject =async (workspaceId: string, data: ProjectInput) => {
 
 export const getProjects =async (workspaceId: string) => {
     return viewProject(workspaceId)
+}
+
+export const updateProject = async (projectId: string, data: { title?: string, description?: string }) => {
+    return editProject(projectId, data)
 }

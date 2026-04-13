@@ -27,3 +27,14 @@ export const viewProject =async (workspaceId: string) => {
     }
   })
 }
+
+export const editProject =async (projectId: string, data: {title?: string, description?: string}) => {
+  return prisma.project.update({
+    where: {
+      id: projectId
+    }, data: {
+      title: data.title,
+      description: data.description
+    }
+  })
+}
