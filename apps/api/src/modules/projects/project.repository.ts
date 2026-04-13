@@ -15,7 +15,7 @@ export const createProject = async (workspaceId: string, data: ProjectInput) => 
   })
 }
 
-export const viewProject =async (workspaceId: string) => {
+export const viewProject = async (workspaceId: string) => {
   return prisma.project.findMany({
     where: {
       workspaceId
@@ -28,13 +28,21 @@ export const viewProject =async (workspaceId: string) => {
   })
 }
 
-export const editProject =async (projectId: string, data: {title?: string, description?: string}) => {
+export const editProject = async (projectId: string, data: {title?: string, description?: string}) => {
   return prisma.project.update({
     where: {
       id: projectId
     }, data: {
       title: data.title,
       description: data.description
+    }
+  })
+}
+
+export const removeProject = async (projectId: string) => {
+  return prisma.project.delete({
+    where: {
+      id: projectId
     }
   })
 }

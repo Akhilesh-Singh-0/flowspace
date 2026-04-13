@@ -1,4 +1,4 @@
-import { createProject, viewProject, editProject } from "./project.repository"
+import { createProject, viewProject, editProject, removeProject } from "./project.repository"
 import { AppError } from "@/middleware/errorHandler"
 
 type ProjectInput = {
@@ -16,4 +16,8 @@ export const getProjects =async (workspaceId: string) => {
 
 export const updateProject = async (projectId: string, data: { title?: string, description?: string }) => {
     return editProject(projectId, data)
+}
+
+export const deleteProject =async (projectId: string) => {
+    return removeProject(projectId)
 }
