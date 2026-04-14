@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTaskHandler } from "./task.controller";
+import { createTaskHandler, getTaskHandler } from "./task.controller";
 import { requireRole } from "@/middleware/requireRole";
 import { validate } from "@/middleware/validate";
 import { authMiddleware } from "@/middleware/requireAuth";
@@ -8,6 +8,8 @@ import { TaskInput } from "./task.schema";
 const router = Router()
 
 router.post("/:workspaceId/projects/:projectId/tasks", authMiddleware, requireRole("OWNER", "ADMIN", "MEMBER"), validate(TaskInput), createTaskHandler)
+
+router.get("/:workspaceId/projects/:projectId/tasks", authMiddleware, requireRole("ADMIN", "OWNER", "MEMBER", "VIEWER"), getTaskHandler)
 
 export default router;
 

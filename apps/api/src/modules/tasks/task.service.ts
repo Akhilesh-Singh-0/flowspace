@@ -1,4 +1,4 @@
-import { findProjectById, createTask } from "./task.repository";
+import { findProjectById, createTask, viewTask } from "./task.repository";
 import { AppError } from "@/middleware/errorHandler";
 import { TaskStatus, TaskPriority } from "@prisma/client"
 import { findUserByClerkId, findUserById } from "@/lib/user.repository"
@@ -26,4 +26,14 @@ export const addTask = async ( creatorId: string, projectId: string, data: TaskI
     const workspaceId = project.workspaceId
 
     return await createTask(projectId, workspaceId, dbUser.id, data)
+}
+
+export const getTask = async (projectId: string) => {
+
+    const project = await findProjectById(projectId)
+    if(!project){
+        throw new AppError("Project does not exists", 404)
+    }
+
+    return await viewTask(projectId)
 }

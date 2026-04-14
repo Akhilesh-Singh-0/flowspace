@@ -33,3 +33,19 @@ export const createTask = async (projectId: string, workspaceId: string, creator
     }
   })
 }
+
+export const viewTask = async (projectId: string) => {
+  return prisma.task.findMany({
+    where: {
+      projectId
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      status: true,
+      priority: true,
+      dueDate: true
+    }
+  })
+}
