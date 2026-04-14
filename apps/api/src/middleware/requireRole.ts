@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";  
-import { findUserByClerkId, findWorkspaceMember } from "@/modules/workspaces/workspace.repository";
+import { findWorkspaceMember } from "@/modules/workspaces/workspace.repository";
+import { findUserByClerkId } from "@/lib/user.repository"
 import { WorkspaceRole } from "@prisma/client";
 import { AppError } from "./errorHandler";
 
@@ -7,7 +8,7 @@ export const requireRole = (...roles: WorkspaceRole[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const requesterId = req.user!.userId
-        const workspaceId = req.params.id as string
+        const workspaceId = (req.params.workspaceId || req.params.id) as string
 
         const dbUser = await findUserByClerkId(requesterId)
         if(!dbUser){

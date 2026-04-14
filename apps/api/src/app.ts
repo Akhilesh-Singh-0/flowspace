@@ -6,6 +6,7 @@ import { errorHandler } from '@/middleware/errorHandler'
 import workspaceRoutes from "@/modules/workspaces/workspace.routes";
 import projectRoutes from "@/modules/projects/project.routes"
 import webhookRoute from "@/modules/auth/auth.routes"
+import taskRoutes from "@/modules/tasks/task.routes"
 
 export const createApp = () => {
   const app = express()
@@ -19,6 +20,7 @@ export const createApp = () => {
   app.use("/auth", webhookRoute)
   app.use("/workspaces", workspaceRoutes)
   app.use("/workspaces", projectRoutes)
+  app.use("/workspaces", taskRoutes)
   app.use(errorHandler)
   
   return app
