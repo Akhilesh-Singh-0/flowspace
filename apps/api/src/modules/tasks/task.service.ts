@@ -1,4 +1,4 @@
-import { findProjectById, createTask, viewTask } from "./task.repository";
+import { findProjectById, createTask, viewTask, findTaskById, editTask } from "./task.repository";
 import { AppError } from "@/middleware/errorHandler";
 import { TaskStatus, TaskPriority } from "@prisma/client"
 import { findUserByClerkId, findUserById } from "@/lib/user.repository"
@@ -36,4 +36,16 @@ export const getTask = async (projectId: string) => {
     }
 
     return await viewTask(projectId)
+}
+
+export const updateTask = async (taskId: string, data: Partial<TaskInput>) => {
+
+    if (Object.keys(data).length === 0) {
+        throw new AppError("No fields provided for update", 400)
+    }
+
+    const task = await findTaskById(taskId)
+    if (!task) throw new AppError("Task not found", 404)
+
+    return await editTask(taskId, data)
 }

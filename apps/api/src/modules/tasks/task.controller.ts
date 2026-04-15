@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { addTask, getTask } from "./task.service";
+import { addTask, getTask, updateTask } from "./task.service";
 
 export const createTaskHandler = async (req: Request, res: Response,  next: NextFunction) => {
     try {
@@ -29,6 +29,22 @@ export const getTaskHandler = async (req: Request, res: Response,  next: NextFun
         success: true,
         data: task
     })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const updateTaskHandler = async (req: Request, res: Response,  next: NextFunction) => {
+    try {
+        const taskId = req.params.taskId as string
+        const data = req.body
+
+        const task = await updateTask(taskId, data)
+
+        return res.status(200).json({
+            success: true,
+            data: task
+        })
     } catch (error) {
         next(error)
     }

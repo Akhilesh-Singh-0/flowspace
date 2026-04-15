@@ -49,3 +49,25 @@ export const viewTask = async (projectId: string) => {
     }
   })
 }
+
+export const findTaskById = async (taskId: string) => {
+  return prisma.task.findUnique({
+    where: { id: taskId },
+    select: { id: true, workspaceId: true, projectId: true }
+  })
+}
+
+export const editTask = async (taskId: string, data: { title?: string, description?: string, status?: TaskStatus, priority?: TaskPriority, dueDate?: Date }) => {
+  return prisma.task.update({
+    where: {
+      id: taskId 
+    },
+    data: {
+      title: data.title,
+      description: data.description,
+      status: data.status,
+      priority: data.priority,
+      dueDate: data.dueDate
+    }
+  })
+}
