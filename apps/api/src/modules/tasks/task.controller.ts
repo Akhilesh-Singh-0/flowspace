@@ -1,5 +1,6 @@
+import { resetOriginalContainerCache } from "@excalidraw/excalidraw/types/element/textWysiwyg";
 import { Request, Response, NextFunction } from "express";
-import { addTask, getTask, updateTask } from "./task.service";
+import { addTask, getTask, updateTask, deleteTask } from "./task.service";
 
 export const createTaskHandler = async (req: Request, res: Response,  next: NextFunction) => {
     try {
@@ -44,6 +45,23 @@ export const updateTaskHandler = async (req: Request, res: Response,  next: Next
         return res.status(200).json({
             success: true,
             data: task
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const deleteTaskHandler = async (req: Request, res: Response,  next: NextFunction) => {
+    try {
+        const taskId = req.params.taskId as string
+
+        const task = await deleteTask(taskId)
+
+        return res.status(200).json({
+            success: true,
+            "data": {
+                "id": "TASK_ID"
+            }
         })
     } catch (error) {
         next(error)

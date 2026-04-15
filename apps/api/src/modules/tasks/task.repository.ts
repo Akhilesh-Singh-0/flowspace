@@ -71,3 +71,11 @@ export const editTask = async (taskId: string, data: { title?: string, descripti
     }
   })
 }
+
+export const removeTask = async (taskId: string) => {
+  return prisma.task.delete({
+    where: {
+      id: taskId
+    }
+  })
+}

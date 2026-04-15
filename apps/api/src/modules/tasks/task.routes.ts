@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { createTaskHandler, getTaskHandler, updateTaskHandler } from "./task.controller";
+import { 
+    createTaskHandler, 
+    getTaskHandler, 
+    updateTaskHandler, 
+    deleteTaskHandler 
+} from "./task.controller";
 import { requireRole } from "@/middleware/requireRole";
 import { validate } from "@/middleware/validate";
 import { authMiddleware } from "@/middleware/requireAuth";
@@ -19,7 +24,8 @@ router.get(
     "/:workspaceId/projects/:projectId/tasks",
     authMiddleware, 
     requireRole("ADMIN", "OWNER", "MEMBER", "VIEWER"), 
-    getTaskHandler)
+    getTaskHandler
+)
 
 router.patch(
     "/:workspaceId/tasks/:taskId",
@@ -27,6 +33,13 @@ router.patch(
     requireRole("OWNER", "ADMIN", "MEMBER"),
     validate(UpdateTaskInput),
     updateTaskHandler
-  )
+)
+
+router.delete(
+    "/:workspaceId/tasks/:taskId",
+    authMiddleware,
+    requireRole("OWNER", "ADMIN", "MEMBER"),
+    deleteTaskHandler
+)
 
 export default router;

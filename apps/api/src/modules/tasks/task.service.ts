@@ -1,7 +1,7 @@
-import { findProjectById, createTask, viewTask, findTaskById, editTask } from "./task.repository";
+import { findProjectById, createTask, viewTask, findTaskById, editTask, removeTask } from "./task.repository";
 import { AppError } from "@/middleware/errorHandler";
 import { TaskStatus, TaskPriority } from "@prisma/client"
-import { findUserByClerkId, findUserById } from "@/lib/user.repository"
+import { findUserByClerkId } from "@/lib/user.repository"
 
 type TaskInput = {
     title: string
@@ -48,4 +48,12 @@ export const updateTask = async (taskId: string, data: Partial<TaskInput>) => {
     if (!task) throw new AppError("Task not found", 404)
 
     return await editTask(taskId, data)
+}
+
+export const deleteTask = async (taskId: string) => {
+
+    const task = await findTaskById(taskId)
+    if (!task) throw new AppError("Task not found", 404)
+
+    return await removeTask(taskId)
 }
