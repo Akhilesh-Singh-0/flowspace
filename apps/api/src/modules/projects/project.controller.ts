@@ -36,11 +36,12 @@ export const getProjectsHandler = async(req: Request, res: Response, next: NextF
 
 export const updateProjectHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const workspaceId = req.params.id as string
       const projectId = req.params.projectId as string
       const data = req.body
-      
-      const updatedProject = await updateProject(projectId, data)
-      
+
+      const updatedProject = await updateProject(workspaceId, projectId, data)
+
       return res.status(200).json({
         success: true,
         data: updatedProject
@@ -52,9 +53,10 @@ export const updateProjectHandler = async (req: Request, res: Response, next: Ne
 
 export const deleteProjectHandler =async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const workspaceId = req.params.id as string;
         const projectId = req.params.projectId as string;
 
-        const removedProject = await deleteProject(projectId)
+        const removedProject = await deleteProject(workspaceId, projectId)
 
         return res.status(200).json({
             success: true,

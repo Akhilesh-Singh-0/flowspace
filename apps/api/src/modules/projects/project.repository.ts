@@ -5,6 +5,13 @@ type ProjectInput = {
   description?: string
 }
 
+export const findProjectById = async (projectId: string) => {
+  return prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, workspaceId: true }
+  })
+}
+
 export const createProject = async (workspaceId: string, data: ProjectInput) => {
   return prisma.project.create({
     data: {

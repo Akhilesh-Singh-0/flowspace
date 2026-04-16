@@ -14,7 +14,8 @@
     "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
   "files": ["src/types/express.d.ts"],
   "include": ["src/**/*"],

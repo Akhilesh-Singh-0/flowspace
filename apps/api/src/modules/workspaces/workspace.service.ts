@@ -104,7 +104,7 @@ const ensureNotLastOwner = async (workspaceId: string) => {
 }
 
 export const removeWorkspaceMember = async (requesterId: string, targetUserId: string, workspaceId: string) => {
-  
+
   const dbUser = await findUserByClerkId(requesterId)
   if(!dbUser) throw new AppError("User not found", 404)
   const requester = await findWorkspaceMember(dbUser.id, workspaceId)
@@ -118,18 +118,23 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
     throw new AppError("Target user is not member of workspace", 404)
   }
 
-  if(requesterId === targetUserId){
+  // BUGFIX / SECURITY: `requesterId` is a Clerk user id; `targetUserId` is a
+  // database user id. The previous comparison was always false, which (a)
+  // broke self-removal for MEMBER/VIEWER (they got 403 instead of being
+  // allowed to leave) and (b) allowed the "last owner" guard to be skipped
+  // in some edge cases. Compare DB ids.
+  if(dbUser.id === targetUserId){
     if(requester.role !== "OWNER"){
       await deleteWorkspaceMember(workspaceId, targetUserId)
       return;
     }
 
     await ensureNotLastOwner(workspaceId);
-  
+
     await deleteWorkspaceMember(workspaceId, targetUserId)
-    return 
+    return
   }
-  
+
   if (requester.role === "MEMBER" || requester.role === "VIEWER") {
     throw new AppError("Not authorized", 403)
   }
@@ -138,7 +143,7 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
     if(target.role === "OWNER" || target.role === "ADMIN"){
       throw new AppError("Admin cannot remove owner or admin", 403)
     }
-  
+
     await deleteWorkspaceMember(workspaceId, targetUserId)
     return
   }

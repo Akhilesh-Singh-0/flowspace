@@ -13,11 +13,15 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    
-    if (process.env.NODE_ENV === "development") {
-      req.user = { userId: "test-user-1" };
-      return next();
-    }
+
+    // NOTE: Do not add a NODE_ENV-based authentication bypass here. A
+    // fail-open bypass (e.g. `if (NODE_ENV === 'development') req.user = ...`)
+    // is a critical auth vulnerability because it makes every protected
+    // route publicly accessible any time NODE_ENV is unset or misconfigured
+    // (e.g. container starts without NODE_ENV). If you need a stubbed
+    // local-only auth mode, gate it behind an explicit boolean env var that
+    // MUST NOT be set in any non-local environment, and still require a
+    // Bearer token shape to reach it.
 
     const authHeader = req.headers.authorization;
 
