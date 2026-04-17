@@ -1,5 +1,15 @@
 import { prisma } from "@/lib/prisma";
 
+export const findTaskById = async (taskId: string) => {
+    return prisma.task.findUnique({
+      where: { id: taskId },
+      select: {
+        id: true,
+        projectId: true
+      }
+    })
+}
+
 export const createComment = async (taskId: string, authorId: string, body: string) => {
     return prisma.comment.create({
         data: {
@@ -14,6 +24,23 @@ export const createComment = async (taskId: string, authorId: string, body: stri
                     name: true,
                     avatarUrl: true
                 }
+            }
+        }
+    })
+}
+
+export const viewComment = async (taskId: string) => {
+    return prisma.comment.findMany({
+        where: {
+            taskId
+        },
+        include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                avatarUrl: true
+              }
             }
         }
     })
