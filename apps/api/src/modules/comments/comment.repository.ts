@@ -45,3 +45,21 @@ export const viewComment = async (taskId: string) => {
         }
     })
 }
+
+export const findCommentById = async (commentId: string) => {
+    return prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { 
+        id: true,
+        taskId: true 
+    }
+    })
+}
+
+export const removeComment = async (commentId: string) => {
+    return prisma.comment.delete({
+        where: {
+            id: commentId
+        }
+    })
+}

@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { addComment, getComment } from "./comment.service";
+import { 
+  addComment, 
+  getComment,
+  deleteComment 
+} from "./comment.service";
 
 export const createCommentHandler = async(req: Request, res: Response, next: NextFunction)=>
 {
@@ -24,6 +28,21 @@ export const getCommentHandler = async(req: Request, res: Response, next: NextFu
     const taskId = req.params.taskId as string
 
     const comment = await getComment(taskId)
+
+    return res.status(200).json({
+      success: true,
+      data: comment
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const deleteCommentHandler = async(req: Request, res: Response, next: NextFunction)=>  {
+  try {
+    const commentId = req.params.commentId as string
+
+    const comment = await deleteComment(commentId)
 
     return res.status(200).json({
       success: true,

@@ -1,5 +1,11 @@
 import { findUserByClerkId } from "@/lib/user.repository";
-import { createComment, findTaskById, viewComment } from "./comment.repository";
+import { 
+  createComment, 
+  findTaskById,
+  findCommentById,
+  viewComment, 
+  removeComment 
+} from "./comment.repository";
 import { AppError } from "@/middleware/errorHandler";
 
 export const addComment = async (clerkId: string, taskId: string, body: string) => {
@@ -18,3 +24,10 @@ export const getComment = async (taskId: string) => {
   return await viewComment(taskId)
 }
 
+export const deleteComment = async (commentId: string) => {
+
+  const comment = await findCommentById(commentId)
+  if (!comment) throw new AppError("Comment not found", 404)
+
+  return await removeComment(commentId)
+}
