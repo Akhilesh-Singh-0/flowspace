@@ -6,7 +6,8 @@ export const TaskInput = z.object({
     description: z.string().trim().optional(),
     status: z.nativeEnum(TaskStatus).optional(),
     priority: z.nativeEnum(TaskPriority).optional(),
-    dueDate: z.coerce.date().optional()
+    dueDate: z.coerce.date().optional(),
+    assigneeId: z.string().optional(),  // ← add this
 })
 export type TaskInputType = z.infer<typeof TaskInput>
 
@@ -15,6 +16,7 @@ export const UpdateTaskInput = z.object({
     description: z.string().trim().optional(),
     status: z.nativeEnum(TaskStatus).optional(),
     priority: z.nativeEnum(TaskPriority).optional(),
-    dueDate: z.coerce.date().optional()
+    dueDate: z.coerce.date().optional(),
+    assigneeId: z.string().optional(),  // ← add this
 })
 export type UpdateInputType = z.infer<typeof UpdateTaskInput>

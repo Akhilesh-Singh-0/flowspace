@@ -4,6 +4,7 @@ import { logger } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { createWebSocketServer } from '@/lib/websocket'
+import { notificationWorker } from '@/lib/notification.worker'
 
 const app = createApp()
 
@@ -16,6 +17,7 @@ const server = app.listen(env.PORT, () => {
 const shutdown = async () => {
   logger.info('Shutting down...')
   server.close()
+  await notificationWorker.close()
   await prisma.$disconnect()
   await redis.quit()
   process.exit(0)

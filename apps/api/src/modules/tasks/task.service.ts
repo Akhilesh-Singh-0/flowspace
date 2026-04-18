@@ -1,3 +1,4 @@
+import { addNotificationJob } from "@/lib/queue"
 import { publish } from "@/lib/pubsub"
 import { findProjectById, createTask, viewTask, findTaskById, editTask, removeTask } from "./task.repository";
 import { AppError } from "@/middleware/errorHandler";
@@ -10,23 +11,18 @@ type TaskInput = {
     status?: TaskStatus
     priority?: TaskPriority
     dueDate?: Date
+    assigneeId?: string
 }
 
 export const addTask = async ( creatorId: string, projectId: string, data: TaskInput ) => {
 
     const project = await findProjectById(projectId)
-    if(!project){
-        throw new AppError("Project does not exists", 404)
-    }
+    if(!project) throw new AppError("Project does not exist", 404)
 
     const dbUser = await findUserByClerkId(creatorId)
-    if(!dbUser){
-        throw new AppError("User not found", 404)
-    }
+    if(!dbUser) throw new AppError("User not found", 404)
 
     const workspaceId = project.workspaceId
-
-    await createTask(projectId, workspaceId, dbUser.id, data)
 
     const newTask = await createTask(projectId, workspaceId, dbUser.id, data)
 
@@ -36,15 +32,22 @@ export const addTask = async ( creatorId: string, projectId: string, data: TaskI
         task: newTask,
     })
 
+    if (data.assigneeId) {
+        await addNotificationJob({
+            type: "TASK_ASSIGNED",
+            taskId: newTask.id,
+            userId: data.assigneeId,
+            workspaceId,
+        })
+    }
+
     return newTask
 }
 
 export const getTask = async (projectId: string) => {
 
     const project = await findProjectById(projectId)
-    if(!project){
-        throw new AppError("Project does not exists", 404)
-    }
+    if(!project) throw new AppError("Project does not exist", 404)
 
     return await viewTask(projectId)
 }
@@ -58,8 +61,6 @@ export const updateTask = async (taskId: string, data: Partial<TaskInput>) => {
     const task = await findTaskById(taskId)
     if (!task) throw new AppError("Task not found", 404)
 
-    await editTask(taskId, data)
-
     const updatedTask = await editTask(taskId, data)
 
     await publish("workspace-events", {
@@ -67,6 +68,15 @@ export const updateTask = async (taskId: string, data: Partial<TaskInput>) => {
         workspaceId: task.workspaceId,
         task: updatedTask,
     })
+
+    if (data.assigneeId && data.assigneeId !== task.assigneeId) {
+        await addNotificationJob({
+            type: "TASK_ASSIGNED",
+            taskId: updatedTask.id,
+            userId: data.assigneeId,
+            workspaceId: task.workspaceId,
+        })
+    }
 
     return updatedTask
 }

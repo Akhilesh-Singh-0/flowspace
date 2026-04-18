@@ -56,7 +56,8 @@ export const findTaskById = async (taskId: string) => {
     select: { 
       id: true, 
       workspaceId: true, 
-      projectId: true 
+      projectId: true,
+      assigneeId: true,
     }
   })
 }
