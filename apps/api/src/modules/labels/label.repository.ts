@@ -61,3 +61,11 @@ export const fetchTaskLabels = async (taskId: string) => {
         }
     })
 }
+
+export const removeTaskLabel = async (taskId: string, labelId: string) => {
+    return prisma.taskLabel.delete({
+        where: {
+            taskId_labelId: {taskId, labelId}
+        }
+    })
+}

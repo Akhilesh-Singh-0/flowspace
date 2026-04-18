@@ -4,7 +4,8 @@ import  {
     findLabelById, 
     findTaskLabelById, 
     assignLabel,
-    fetchTaskLabels
+    fetchTaskLabels,
+    removeTaskLabel
 } from "./label.repository";
 import { AppError } from "@/middleware/errorHandler";
 import { findTaskById } from "../tasks/task.repository";
@@ -42,4 +43,13 @@ export const assignLabelToTask = async (workspaceId: string, taskId: string, lab
 export const getTaskLabels = async (taskId: string) => 
 {
     return await fetchTaskLabels(taskId)
+}
+
+export const removeLabelFromTask = async (taskId: string, labelId: string) => {
+    const taskLabel = await findTaskLabelById(taskId, labelId)
+    if(!taskLabel){
+        throw new AppError("Lable doesnt exist", 404)
+    }
+
+    return await removeTaskLabel(taskId, labelId)
 }
