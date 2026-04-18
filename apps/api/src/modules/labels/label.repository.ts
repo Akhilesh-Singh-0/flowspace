@@ -44,3 +44,20 @@ export const assignLabel = async (taskId: string, labelId: string) => {
       data: { taskId, labelId }
     })
 }
+
+export const fetchTaskLabels = async (taskId: string) => {
+    return prisma.taskLabel.findMany({
+        where: {
+            taskId
+        },
+        include: {
+            label: {
+                select: {
+                    id: true,
+                    name: true,
+                    color: true
+                }
+            }
+        }
+    })
+}

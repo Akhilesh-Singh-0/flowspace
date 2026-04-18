@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { 
     addLabel,
-    assignLabelToTask, 
+    assignLabelToTask,
+    getTaskLabels
 } from "./label.service";
 
 export const createLabelHandler = async (req: Request, res: Response,  next: NextFunction) => {
@@ -27,6 +28,22 @@ export const createAssignLabelHandler = async (req: Request, res: Response,  nex
         const labelId = req.body.labelId
 
         const label = await assignLabelToTask(workspaceId, taskId, labelId)
+
+        return res.status(201).json({
+        success: true,
+        data: label
+    })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getLabelHandler = async (req: Request, res: Response,  next: NextFunction) => {
+    try {
+
+        const taskId = req.params.taskId as string
+
+        const label = await getTaskLabels(taskId)
 
         return res.status(201).json({
         success: true,

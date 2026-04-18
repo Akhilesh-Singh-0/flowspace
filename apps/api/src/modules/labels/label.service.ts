@@ -3,7 +3,8 @@ import  {
     createLabel, 
     findLabelById, 
     findTaskLabelById, 
-    assignLabel 
+    assignLabel,
+    fetchTaskLabels
 } from "./label.repository";
 import { AppError } from "@/middleware/errorHandler";
 import { findTaskById } from "../tasks/task.repository";
@@ -36,4 +37,9 @@ export const assignLabelToTask = async (workspaceId: string, taskId: string, lab
     if(alreadyAssigned) throw new AppError("Label already assigned to task", 409)
   
     return assignLabel(taskId, labelId)
-  }
+}
+
+export const getTaskLabels = async (taskId: string) => 
+{
+    return await fetchTaskLabels(taskId)
+}
