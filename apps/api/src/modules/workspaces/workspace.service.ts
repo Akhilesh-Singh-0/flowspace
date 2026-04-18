@@ -3,13 +3,12 @@ import {
   createWorkspaceWithOwner,
   findWorkspacesByUserId,
   findWorkspaceMember,
-  findUserById,
   createWorkspaceMember,
   findWorkspaceMembers,
-  findUserByClerkId,
   deleteWorkspaceMember,
   countWorkspaceOwners
 } from "./workspace.repository";
+import { findUserByClerkId, findUserById } from "@/lib/user.repository"
 import { AppError } from "@/middleware/errorHandler";
 import { Prisma } from "@prisma/client";
 

@@ -13,7 +13,7 @@ import { TaskInput, UpdateTaskInput } from "./task.schema";
 const router = Router()
 
 router.post(
-    ":workspaceId/projects/:projectId/tasks",
+    "/:workspaceId/projects/:projectId/tasks",
     authMiddleware,
     requireRole("OWNER", "ADMIN", "MEMBER"), 
     validate(TaskInput), 

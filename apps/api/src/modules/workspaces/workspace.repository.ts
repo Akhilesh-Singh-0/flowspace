@@ -67,17 +67,6 @@ export const findWorkspaceMember =async (userId : string, workspaceId : string) 
   })
 }
 
-export const findUserById =async (userId : string) => {
-  return prisma.user.findUnique({
-    where : {
-      id: userId
-    },
-    select: {
-      id: true
-    }
-  })
-}
-
 export const createWorkspaceMember =async (userId: string, workspaceId: string, role: WorkspaceRole) => {
   const workspaceMember = await prisma.workspaceMember.create({
     data: {
@@ -124,12 +113,5 @@ export const countWorkspaceOwners =async (workspaceId: string) => {
       workspaceId,
       role: "OWNER"
     }
-  })
-}
-
-export const findUserByClerkId = async (clerkId: string) => {
-  return prisma.user.findUnique({
-    where: { clerkId },
-    select: { id: true }
   })
 }

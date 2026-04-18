@@ -7,6 +7,8 @@ import workspaceRoutes from "@/modules/workspaces/workspace.routes";
 import projectRoutes from "@/modules/projects/project.routes"
 import webhookRoute from "@/modules/auth/auth.routes"
 import taskRoutes from "@/modules/tasks/task.routes"
+import commentRoutes from "@/modules/comments/comment.routes"
+import lableRoutes from '@/modules/labels/label.routes'
 
 export const createApp = () => {
   const app = express()
@@ -21,6 +23,8 @@ export const createApp = () => {
   app.use("/workspaces", workspaceRoutes)
   app.use("/workspaces", projectRoutes)
   app.use("/workspaces", taskRoutes)
+  app.use("/workspaces", commentRoutes)
+  app.use("/workspaces", lableRoutes)
   app.use(errorHandler)
   
   return app

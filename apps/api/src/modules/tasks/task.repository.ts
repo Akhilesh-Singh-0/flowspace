@@ -53,7 +53,11 @@ export const viewTask = async (projectId: string) => {
 export const findTaskById = async (taskId: string) => {
   return prisma.task.findUnique({
     where: { id: taskId },
-    select: { id: true, workspaceId: true, projectId: true }
+    select: { 
+      id: true, 
+      workspaceId: true, 
+      projectId: true 
+    }
   })
 }
 
