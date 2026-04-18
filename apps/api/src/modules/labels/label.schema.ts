@@ -5,3 +5,8 @@ export const LabelInput = z.object({
     color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Invalid hex color")
 })
 export type LabelInputType = z.infer<typeof LabelInput>
+
+export const AssignLabelInput = z.object({
+    labelId: z.string().min(1)
+})
+export type AssignLabelInputType = z.infer<typeof AssignLabelInput>

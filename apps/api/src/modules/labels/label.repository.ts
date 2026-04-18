@@ -17,3 +17,30 @@ export const createLabel = async (workspaceId: string, name: string, color: stri
         }
     })
 }
+
+export const findLabelById = async (labelId: string) => {
+    return prisma.label.findUnique({
+      where: { id: labelId },
+      select: { 
+        id: true, 
+        workspaceId: true 
+        }
+    })
+}
+
+export const findTaskLabelById = async (taskId: string, labelId: string) => {
+    return prisma.taskLabel.findUnique({
+        where: {
+            taskId_labelId: {
+                taskId, 
+                labelId
+            }
+        }
+    })
+}
+
+export const assignLabel = async (taskId: string, labelId: string) => {
+    return prisma.taskLabel.create({
+      data: { taskId, labelId }
+    })
+}

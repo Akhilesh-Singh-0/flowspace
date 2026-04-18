@@ -1,5 +1,12 @@
-import  { findLabelByName, createLabel } from "./label.repository";
+import  { 
+    findLabelByName, 
+    createLabel, 
+    findLabelById, 
+    findTaskLabelById, 
+    assignLabel 
+} from "./label.repository";
 import { AppError } from "@/middleware/errorHandler";
+import { findTaskById } from "../tasks/task.repository";
 
 export const addLabel = async (workspaceId: string, data: {name: string, color: string}) => {
     
@@ -13,3 +20,20 @@ export const addLabel = async (workspaceId: string, data: {name: string, color: 
 
     return label
 }
+
+export const assignLabelToTask = async (workspaceId: string, taskId: string, labelId: string) => 
+{
+
+    const label = await findLabelById(labelId)
+    if(!label) throw new AppError("Label does not exist", 404)
+    if(label.workspaceId !== workspaceId) throw new AppError("Label does not belong to this workspace", 400)
+  
+    const task = await findTaskById(taskId)
+    if(!task) throw new AppError("Task does not exist", 404)
+    if(task.workspaceId !== workspaceId) throw new AppError("Task does not belong to this workspace", 400)
+  
+    const alreadyAssigned = await findTaskLabelById(taskId, labelId)
+    if(alreadyAssigned) throw new AppError("Label already assigned to task", 409)
+  
+    return assignLabel(taskId, labelId)
+  }
