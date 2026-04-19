@@ -6,7 +6,6 @@ Thanks for considering a contribution to **flowspace**. This guide covers everyt
 **Monorepo:** Turborepo (`apps/api` + `packages/types`)
 **Language:** TypeScript (strict)
 **Test Framework:** Vitest 4.1.2
-**Generated:** 2026-04-18
 
 ---
 
@@ -15,23 +14,27 @@ Thanks for considering a contribution to **flowspace**. This guide covers everyt
 ```
 flowspace/
 ├── apps/
-│   ├── api/                       ← Express + TypeScript backend
+│   ├── api/                           ← Express + TypeScript backend
 │   │   ├── src/
-│   │   │   ├── modules/           ← Feature modules (auth, workspaces, projects, tasks, comments, labels)
-│   │   │   ├── middleware/
-│   │   │   ├── lib/
+│   │   │   ├── modules/               ← Feature modules (auth, workspaces, projects, tasks, comments, labels)
+│   │   │   ├── middleware/            ← requireAuth, requireRole, validate, errorHandler, requestId, rateLimiter (stub)
+│   │   │   ├── lib/                   ← prisma client, redis, pubsub, queue, worker, websocket, logger, user.repository
+│   │   │   ├── config/                ← env (Zod), constants (stub)
+│   │   │   ├── utils/                 ← pagination, slugify, crypto (all stubs today)
+│   │   │   ├── types/                 ← internal Express type augmentations
 │   │   │   └── server.ts
-│   │   └── prisma/schema.prisma   ← 8 models
-│   └── web/                       ← Frontend (coming soon — not yet present)
+│   │   └── prisma/schema.prisma       ← 8 models
+│   └── web/                           ← Frontend (coming soon — not yet present)
 ├── packages/
-│   └── types/                     ← Shared @flowspace/types
-├── docs/                          ← Documentation (you are here)
-├── docker-compose.yml
+│   └── types/                         ← Scaffolded workspace for shared @flowspace/types.
+│                                         Currently empty (src/index.ts exports nothing).
+├── docs/                              ← Documentation (you are here)
+├── docker-compose.yml                 ← Postgres 15 + Redis 7-alpine services for local dev
 ├── turbo.json
-└── package.json
+└── package.json                       ← npm workspaces + "packageManager": "npm@10.8.3"
 ```
 
-Workspaces are declared in the root `package.json` / `pnpm-workspace.yaml`. Turborepo orchestrates `dev`, `build`, `test` across every workspace.
+Workspaces are declared in the root `package.json` under the `workspaces` key (npm-style). Turborepo orchestrates `dev`, `build`, `test` across every workspace.
 
 ---
 
@@ -89,8 +92,8 @@ Keep the subject imperative ("add", not "added"), under 72 characters.
 Lint before pushing:
 
 ```bash
-pnpm --filter @flowspace/api lint
-pnpm --filter @flowspace/api lint -- --fix
+npm --workspace @flowspace/api run lint
+npm --workspace @flowspace/api run lint -- --fix
 ```
 
 ---
@@ -100,14 +103,14 @@ pnpm --filter @flowspace/api lint -- --fix
 We use **Vitest 4.1.2**. Tests are colocated next to the module they cover (e.g. `task.service.test.ts` next to `task.service.ts`). No tests exist yet, so every PR that seeds the suite is hugely valuable.
 
 ```bash
-pnpm test                                      # all workspaces
-pnpm --filter @flowspace/api test              # API only
-npx vitest                                     # watch mode (run from apps/api)
-npx vitest run apps/api/src/modules/tasks      # a single module
-npx vitest run --coverage                      # generate coverage
+npm test                                          # all workspaces
+npm --workspace @flowspace/api run test           # API only
+npx vitest                                        # watch mode (run from apps/api)
+npx vitest run apps/api/src/modules/tasks         # a single module
+npx vitest run --coverage                         # generate coverage
 ```
 
-Example test for `createTaskHandler`:
+Example test for `createTaskHandler`. Note that `authMiddleware` attaches the authenticated identity as `req.user = { userId: ... }` (see `apps/api/src/middleware/requireAuth.ts`), and every controller returns the shared `{ success: true, data: ... }` envelope with `res.status(201).json(...)`:
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
@@ -116,7 +119,7 @@ import { createTaskHandler } from './task.controller';
 describe('createTaskHandler', () => {
   it('creates a task when caller is a workspace member', async () => {
     const req = {
-      auth: { userId: 'user_123' },
+      user: { userId: 'user_123' },
       params: { workspaceId: 'ws_1', projectId: 'proj_1' },
       body: { title: 'Ship MVP' },
     } as any;
@@ -125,13 +128,15 @@ describe('createTaskHandler', () => {
 
     await createTaskHandler(req, res, next);
 
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: expect.objectContaining({
         title: 'Ship MVP',
         status: 'BACKLOG',
         priority: 'MEDIUM',
       }),
-    );
+    });
   });
 });
 ```
@@ -140,30 +145,33 @@ Expected response shape for `POST /workspaces/:workspaceId/projects/:projectId/t
 
 ```json
 {
-  "id": "ckxyz...",
-  "title": "Ship MVP",
-  "status": "BACKLOG",
-  "priority": "MEDIUM",
-  "workspaceId": "ws_1",
-  "projectId": "proj_1",
-  "creatorId": "user_123",
-  "assigneeId": null,
-  "dueDate": null,
-  "createdAt": "2026-04-18T12:00:00.000Z",
-  "updatedAt": "2026-04-18T12:00:00.000Z"
+  "success": true,
+  "data": {
+    "id": "ckxyz...",
+    "title": "Ship MVP",
+    "status": "BACKLOG",
+    "priority": "MEDIUM",
+    "workspaceId": "ws_1",
+    "projectId": "proj_1",
+    "creatorId": "user_123",
+    "assigneeId": null,
+    "dueDate": null,
+    "createdAt": "2026-04-18T12:00:00.000Z",
+    "updatedAt": "2026-04-18T12:00:00.000Z"
+  }
 }
 ```
 
-Expected behavior: creates a Task for a given workspace/project if the caller has `OWNER`/`ADMIN`/`MEMBER` role, persists via `task.repository`, emits a real-time pubsub event, enqueues a notification via BullMQ, and returns the created Task as JSON.
+Expected behavior: creates a Task for a given workspace/project if the caller has `OWNER`/`ADMIN`/`MEMBER` role, persists via `task.repository`, emits a real-time pubsub event, enqueues a notification via BullMQ, and returns the created Task inside the `{ success, data }` envelope.
 
 ---
 
 ## 6. Local Development Loop
 
 ```bash
-pnpm dev                                         # starts every dev script via Turborepo
-pnpm --filter @flowspace/api dev                 # API only (nodemon + ts-node)
-pnpm build                                       # compile every workspace
+npm run dev                                         # starts every dev script via Turborepo
+npm --workspace @flowspace/api run dev              # API only (nodemon + ts-node)
+npm run build                                       # compile every workspace
 ```
 
 Debug a specific file:
@@ -187,7 +195,7 @@ Attach the VS Code debugger and set breakpoints in `apps/api/src/modules/<resour
 
 1. Fork or branch from `main`.
 2. Make your change. Keep PRs focused.
-3. Run `pnpm test` and `pnpm build` locally — both must pass.
+3. Run `npm test` and `npm run build` locally — both must pass.
 4. Update or add documentation in `docs/` if user-facing behavior changed.
 5. Open a PR into `main` with:
    - A clear title in Conventional Commit format (e.g. `feat(tasks): add status endpoint`).
@@ -216,5 +224,3 @@ Attach the VS Code debugger and set breakpoints in `apps/api/src/modules/<resour
 Thanks for contributing to flowspace!
 
 ---
-
-**Document generated:** 2026-04-18

@@ -114,12 +114,14 @@ Every architectural decision is intentional:
 - [x] Global error handling middleware with custom AppError class
 - [x] Request ID tracing on every request
 - [x] Zod validation on all incoming data
-- [x] Health check endpoint with DB + Redis status
+- [ ] Health check endpoint — not implemented yet; stubbed file would live at `apps/api/src/modules/health/`
 
 ### ✅ Auth
 - [x] `requireAuth` middleware — verifies Clerk JWT on every protected route
 - [x] `requireRole` middleware — enforces RBAC at the service layer
 - [x] `POST /auth/webhook` — syncs new Clerk users to PostgreSQL automatically via Svix
+
+> **Dev-mode short-circuit**: When `NODE_ENV=development`, `requireAuth` bypasses Clerk and injects `req.user = { userId: 'test-user-1' }` on every request — see `apps/api/src/middleware/requireAuth.ts`. Never run the API with `NODE_ENV=development` in production.
 
 ### ✅ Workspaces + Members
 - [x] Full workspace CRUD with atomic owner assignment
@@ -214,14 +216,9 @@ Every architectural decision is intentional:
 | Method | Endpoint | Description | Min Role |
 |---|---|---|---|
 | POST | `/workspaces/:workspaceId/labels` | Create label in workspace | ADMIN |
-| GET | `/workspaces/:workspaceId/tasks/:taskId/labels` | Get labels on task | VIEWER |
 | POST | `/workspaces/:workspaceId/tasks/:taskId/labels` | Assign label to task | ADMIN |
-| DELETE | `/workspaces/:workspaceId/tasks/:taskId/labels/:labelId` | Remove label from task | ADMIN |
-
-### System
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| GET | `/health` | Server, DB, and Redis health status | — |
+| GET | `/workspaces/:workspaceId/tasks/:taskId/labels` | List labels on task | VIEWER |
+| DELETE | `/workspaces/:workspaceId/tasks/:taskId/labels/:labelId` | Unassign label from task | ADMIN |
 
 ---
 
@@ -312,8 +309,7 @@ cd ../..
 npm run dev
 ```
 
-API runs at `http://localhost:3000`
-Health check at `http://localhost:3000/health`
+API runs at `http://localhost:3000`.
 
 ---
 

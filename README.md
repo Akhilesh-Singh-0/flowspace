@@ -40,7 +40,9 @@ FlowSpace is a **project management platform** — workspaces, roles, projects, 
     ├── apps/
     │   ├── api/          ← Node.js + Express backend
     │   └── web/          ← Frontend (coming soon)
-    ├── packages/         ← Shared packages
+    ├── packages/
+    │   └── types/        ← Scaffolded (currently empty) — shared TS types
+    │                       will live here once the frontend lands.
     ├── docker-compose.yml
     └── turbo.json
 
@@ -159,7 +161,6 @@ npm run dev
 ```
 
 API runs at `http://localhost:3000`
-Health check at `http://localhost:3000/health`
 
 ---
 
@@ -172,6 +173,8 @@ Health check at `http://localhost:3000/health`
 - [API Reference](docs/api/README.md) — all 21 endpoints, auth, and error codes
 - [Architecture Diagrams](docs/architecture/) — MVC flow, ER diagram, endpoint map
 - [Backend README](./apps/api/README.md) — backend-specific notes
+
+> `packages/types` is scaffolded (currently empty); shared TypeScript types will live here once the frontend lands.
 
 ---
 
@@ -188,7 +191,7 @@ Then fill in values for the following variables:
 | Variable | Purpose | Where to get it |
 |---|---|---|
 | `NODE_ENV` | Runtime mode (`development` / `production` / `test`) | Set locally |
-| `PORT` | HTTP port the API binds to | Defaults to `4000` |
+| `PORT` | HTTP port the API binds to | Defaults to `3000` (set in `apps/api/src/config/env.ts`; `.env.example` is aligned to `3000`) |
 | `DATABASE_URL` | PostgreSQL connection string | Matches `postgres` service in `docker-compose.yml` |
 | `REDIS_URL` | Redis connection string (pub/sub + BullMQ) | Matches `redis` service in `docker-compose.yml` |
 | `CLERK_SECRET_KEY` | Clerk backend secret (verifies JWTs) | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |

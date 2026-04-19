@@ -6,13 +6,12 @@ Complete REST API reference for **flowspace** — a project management backend c
 **API Version:** `0.0.1` (tracked via `apps/api/package.json`)
 **Total Endpoints:** 21
 **Resources:** 6 (auth, workspaces, projects, tasks, comments, labels)
-**Generated:** 2026-04-18
 
 ---
 
 ## Authentication
 
-Clerk JWT Bearer tokens are verified via the `@clerk/express` middleware. Every protected route is gated by `authMiddleware` from `apps/api/src/middleware/requireAuth.ts`. User identity is synced from Clerk via a Svix-verified webhook at `POST /auth/webhook`, so the first time a user signs up in Clerk they are provisioned in the flowspace database automatically.
+Clerk JWT Bearer tokens are verified via `@clerk/backend`'s `verifyToken` function inside the `authMiddleware` exported from `apps/api/src/middleware/requireAuth.ts`. Every protected route is gated by that middleware, and the authenticated identity is attached to the request as `req.user = { userId: string }` (the `userId` value is `verified.sub` from the decoded JWT). User identity is synced from Clerk via a Svix-verified webhook at `POST /auth/webhook`, so the first time a user signs up in Clerk they are provisioned in the flowspace database automatically.
 
 Send your Clerk session JWT on every protected request:
 
@@ -42,6 +41,8 @@ Example authorization header:
 Authorization: Bearer eyJhbGciOiJSUzI1NiIs...
 ```
 
+> **Development-mode short-circuit:** When `NODE_ENV=development`, `authMiddleware` (in `apps/api/src/middleware/requireAuth.ts`) bypasses Clerk JWT verification entirely and injects `req.user = { userId: "test-user-1" }` on every request. This exists to simplify local development. **Never** run the API with `NODE_ENV=development` in production.
+
 ---
 
 ## Authorization (RBAC)
@@ -61,13 +62,35 @@ Role is enforced in the service layer via the `requireRole(...)` middleware. Fai
 
 ## Rate Limiting
 
-A `rateLimiter` middleware module exists in `apps/api/src/middleware/rateLimiter.ts` (implementation-defined; not globally mounted in `app.ts`). You can opt individual routers into it as needed.
+A stub file exists at `apps/api/src/middleware/rateLimiter.ts` but it is currently empty — rate limiting is NOT implemented. Tracked in Technical-Debt.md.
 
 ---
 
 ## Pagination, Filtering, and Sorting
 
-A pagination utility is available at `apps/api/src/utils/pagination.ts`. Resource-specific filtering is not currently exposed via query parameters; when routes adopt pagination they accept `?page=` and `?pageSize=` query params.
+A file exists at `apps/api/src/utils/pagination.ts` but it is currently empty — pagination is NOT implemented. No endpoints accept `?page=` / `?pageSize=` query parameters today. Tracked in Technical-Debt.md.
+
+---
+
+## Response Envelope
+
+All successful responses are wrapped in a universal envelope produced by the controller layer (`apps/api/src/modules/*/*.controller.ts`). There are two shapes:
+
+```json
+{
+  "success": true,
+  "data": <payload>
+}
+```
+
+```json
+{
+  "success": true,
+  "message": "..."
+}
+```
+
+The `message`-only variant is used by `removeWorkspaceMemberHandler` (endpoint §6). Every other endpoint returns `{ success, data }`.
 
 ---
 
@@ -77,22 +100,40 @@ A pagination utility is available at `apps/api/src/utils/pagination.ts`. Resourc
 |---|---|
 | `200 OK` | Request succeeded |
 | `201 Created` | Resource created |
-| `400 Bad Request` | Zod validation failure |
-| `401 Unauthorized` | Clerk JWT missing or invalid |
+| `400 Bad Request` | Zod validation failure (emitted by `errorHandler` as `VALIDATION_ERROR`) |
+| `401 Unauthorized` | Clerk JWT missing or invalid (emitted by `authMiddleware` as `UNAUTHORIZED` or `TOKEN_EXPIRED`) |
 | `403 Forbidden` | RBAC check failed via `requireRole` |
 | `404 Not Found` | Resource does not exist or caller has no access |
-| `409 Conflict` | Unique constraint violation (e.g. duplicate workspace slug, duplicate label name per workspace) |
-| `500 Internal Server Error` | Unhandled server error, mapped by `errorHandler` middleware |
+| `409 Conflict` | Unique constraint violation (emitted as `CONFLICT`, e.g. duplicate workspace slug, duplicate label name per workspace) |
+| `500 Internal Server Error` | Unhandled server error (emitted as `INTERNAL_SERVER_ERROR` by `errorHandler` middleware) |
 
-All errors return JSON:
+All errors return JSON using the envelope produced by `apps/api/src/middleware/errorHandler.ts`:
 
 ```json
 {
-  "error": "ValidationError",
-  "message": "title is required",
-  "details": [ ... ]
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input",
+    "fields": { "title": "Required" }
+  },
+  "requestId": "uuid-v4"
 }
 ```
+
+Error `code` values currently emitted:
+
+| Code | HTTP Status | Source |
+|---|---|---|
+| `VALIDATION_ERROR` | `400` | `errorHandler` — any `ZodError` |
+| `CONFLICT` | `409` | `errorHandler` — Prisma `P2002` unique constraint violation |
+| `APP_ERROR` | (varies per `AppError.statusCode`) | `errorHandler` — thrown `AppError` instances |
+| `INTERNAL_SERVER_ERROR` | `500` | `errorHandler` — catch-all |
+| `UNAUTHORIZED` | `401` | `authMiddleware` — missing / invalid JWT |
+| `TOKEN_EXPIRED` | `401` | `authMiddleware` — expired Clerk JWT |
+
+The `fields` property is only populated for `VALIDATION_ERROR` responses and contains a `{ "path.to.field": "message" }` map derived from the Zod issue list.
 
 ---
 
@@ -128,7 +169,7 @@ All errors return JSON:
 
 ### 1. POST /auth/webhook
 
-Clerk user sync endpoint. Receives `user.created`, `user.updated`, and `user.deleted` events. Payloads are verified using Svix with the `CLERK_WEBHOOK_SECRET`. Must be mounted with the `express.raw` body parser (already configured in `apps/api/src/app.ts`).
+Clerk user sync endpoint. Currently handles only `user.created` (syncs the new user into PostgreSQL via `syncClerkUser`). `user.updated` and `user.deleted` events are accepted with `200 OK` but the controller performs no action — tracked in Technical-Debt.md. See `apps/api/src/modules/auth/auth.controller.ts`. Payloads are verified using Svix with the `CLERK_WEBHOOK_SECRET`. Must be mounted with the `express.raw` body parser (already configured in `apps/api/src/app.ts`).
 
 - **Auth:** Svix signature headers (`svix-id`, `svix-timestamp`, `svix-signature`)
 - **Request body:** Clerk webhook event payload (raw bytes verified by Svix)
@@ -152,8 +193,8 @@ Create a new workspace. The caller becomes `OWNER` automatically.
 
 - **Auth:** Clerk JWT
 - **Role:** Any authenticated user
-- **Schema:** `CreateWorkspaceSchema` (Zod) — `{ name: string, slug: string }`
-- **Response:** `201 Created` with the new `Workspace`.
+- **Schema:** `WorkspaceInput` (Zod) — `{ name: string, slug: string }`
+- **Response:** `201 Created` with `{ success: true, data: <Workspace> }`.
 
 ```bash
 curl -X POST http://localhost:3000/workspaces \
@@ -168,7 +209,7 @@ List workspaces the authenticated user belongs to.
 
 - **Auth:** Clerk JWT
 - **Role:** Any authenticated user
-- **Response:** `200 OK` with `Workspace[]`.
+- **Response:** `200 OK` with `{ success: true, data: Workspace[] }`.
 
 ### 4. POST /workspaces/:workspaceId/members
 
@@ -176,8 +217,8 @@ Add a member to a workspace.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Schema:** `AddMemberSchema` — `{ userId: string, role: 'ADMIN' | 'MEMBER' | 'VIEWER' }`
-- **Response:** `201 Created` with the new `WorkspaceMember`.
+- **Schema:** `AddMemberSchema` — `{ targetUserId: string, role: 'ADMIN' | 'MEMBER' | 'VIEWER' }` (the `role` field defaults to `MEMBER` when omitted)
+- **Response:** `201 Created` with `{ success: true, data: <WorkspaceMember> }`.
 
 ### 5. GET /workspaces/:workspaceId/members
 
@@ -185,7 +226,7 @@ List all members of a workspace.
 
 - **Auth:** Clerk JWT
 - **Role:** All roles
-- **Response:** `200 OK` with `WorkspaceMember[]` (each includes the nested `User`).
+- **Response:** `200 OK` with `{ success: true, data: WorkspaceMember[] }` (each includes the nested `User`).
 
 ### 6. DELETE /workspaces/:workspaceId/members/:userId
 
@@ -193,7 +234,7 @@ Remove a member from a workspace.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Response:** `204 No Content`.
+- **Response:** `200 OK` with `{ success: true, message: "Member removed successfully" }`.
 
 ---
 
@@ -205,14 +246,14 @@ Create a project inside a workspace.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Schema:** `CreateProjectSchema` — `{ name: string, description?: string }`
-- **Response:** `201 Created` with the new `Project`.
+- **Schema:** `ProjectInput` — `{ title: string, description?: string }`. The `title` is trimmed and lowercased by the Zod schema (`.trim().toLowerCase()`), so project titles are persisted in lowercase.
+- **Response:** `201 Created` with `{ success: true, data: <Project> }`.
 
 ```bash
 curl -X POST http://localhost:3000/workspaces/ws_1/projects \
   -H "Authorization: Bearer $CLERK_JWT" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Mobile App","description":"iOS + Android rewrite"}'
+  -d '{"title":"Mobile App","description":"iOS + Android rewrite"}'
 ```
 
 ### 8. GET /workspaces/:id/projects
@@ -221,7 +262,7 @@ List all projects in a workspace.
 
 - **Auth:** Clerk JWT
 - **Role:** All roles
-- **Response:** `200 OK` with `Project[]`.
+- **Response:** `200 OK` with `{ success: true, data: Project[] }`.
 
 ### 9. PATCH /workspaces/:id/projects/:projectId
 
@@ -229,8 +270,8 @@ Update a project.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Schema:** `UpdateProjectSchema` — `{ name?: string, description?: string }`
-- **Response:** `200 OK` with the updated `Project`.
+- **Schema:** `UpdateProject` — `{ title?: string, description?: string }`. When `title` is provided it is trimmed and lowercased.
+- **Response:** `200 OK` with `{ success: true, data: <Project> }`.
 
 ### 10. DELETE /workspaces/:id/projects/:projectId
 
@@ -238,7 +279,7 @@ Delete a project (cascades to its tasks).
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Response:** `204 No Content`.
+- **Response:** `200 OK` with `{ success: true, data: <Project> }` (the removed project row).
 
 ---
 
@@ -250,8 +291,8 @@ Create a task. Emits a real-time pubsub event and enqueues a BullMQ notification
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN` / `MEMBER`
-- **Schema:** `CreateTaskSchema` — `{ title: string, description?: string, status?: TaskStatus, priority?: TaskPriority, assigneeId?: string, dueDate?: string }`
-- **Response:** `201 Created` with the new `Task`.
+- **Schema:** `TaskInput` — `{ title: string, description?: string, status?: TaskStatus, priority?: TaskPriority, assigneeId?: string, dueDate?: string }`
+- **Response:** `201 Created` with `{ success: true, data: <Task> }`.
 
 ```bash
 curl -X POST http://localhost:3000/workspaces/ws_1/projects/proj_1/tasks \
@@ -260,7 +301,7 @@ curl -X POST http://localhost:3000/workspaces/ws_1/projects/proj_1/tasks \
   -d '{"title":"Ship MVP","priority":"HIGH"}'
 ```
 
-Response shape:
+Task payload shape (inside `data`):
 
 ```json
 {
@@ -284,7 +325,7 @@ List tasks in a project.
 
 - **Auth:** Clerk JWT
 - **Role:** All roles
-- **Response:** `200 OK` with `Task[]`.
+- **Response:** `200 OK` with `{ success: true, data: Task[] }`.
 
 ### 13. PATCH /workspaces/:workspaceId/tasks/:taskId
 
@@ -292,8 +333,8 @@ Update a task (title, description, status, priority, assignee, due date).
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN` / `MEMBER`
-- **Schema:** `UpdateTaskSchema`
-- **Response:** `200 OK` with the updated `Task`.
+- **Schema:** `UpdateTaskInput`
+- **Response:** `200 OK` with `{ success: true, data: <Task> }`.
 
 ### 14. DELETE /workspaces/:workspaceId/tasks/:taskId
 
@@ -301,7 +342,9 @@ Delete a task (cascades to its comments and label links).
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN` / `MEMBER`
-- **Response:** `204 No Content`.
+- **Response:** `200 OK` with `{ success: true, data: { "id": "TASK_ID" } }`.
+
+> **Known stub:** the handler (`apps/api/src/modules/tasks/task.controller.ts:deleteTaskHandler`) currently returns a hard-coded `{ "id": "TASK_ID" }` string; the real deleted task id is not yet wired through — tracked in Technical-Debt.md.
 
 ---
 
@@ -313,8 +356,8 @@ Add a comment to a task.
 
 - **Auth:** Clerk JWT
 - **Role:** All roles (any workspace member may comment)
-- **Schema:** `CreateCommentSchema` — `{ body: string }`
-- **Response:** `201 Created` with the new `Comment`.
+- **Schema:** `CommentInput` — `{ body: string }`
+- **Response:** `201 Created` with `{ success: true, data: <Comment> }`.
 
 ### 16. GET /workspaces/:workspaceId/tasks/:taskId/comments
 
@@ -322,7 +365,7 @@ List comments on a task (oldest first).
 
 - **Auth:** Clerk JWT
 - **Role:** All roles
-- **Response:** `200 OK` with `Comment[]` (each includes the nested author `User`).
+- **Response:** `200 OK` with `{ success: true, data: Comment[] }` (each includes the nested author `User`).
 
 ### 17. DELETE /workspaces/:workspaceId/tasks/:taskId/comments/:commentId
 
@@ -330,7 +373,7 @@ Delete a comment.
 
 - **Auth:** Clerk JWT
 - **Role:** Author of the comment, or `OWNER` / `ADMIN`
-- **Response:** `204 No Content`.
+- **Response:** `200 OK` with `{ success: true, data: <Comment> }` (the removed comment row).
 
 ---
 
@@ -342,8 +385,15 @@ Create a workspace-scoped label.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Schema:** `CreateLabelSchema` — `{ name: string, color?: string }`
-- **Response:** `201 Created` with the new `Label`. Returns `409 Conflict` if the label name already exists in the workspace.
+- **Schema:** `CreateLabelSchema` (Zod `LabelInput`) — `{ name: string, color: string }`. Both fields are required. `color` **must** match the pattern `^#[0-9A-Fa-f]{6}$` (a 6-digit hex color with a leading `#`, e.g. `#1D9E75`).
+- **Response:** `201 Created` with `{ success: true, data: <Label> }`. Returns `409 Conflict` (`CONFLICT` code) if the label name already exists in the workspace.
+
+```bash
+curl -X POST http://localhost:3000/workspaces/ws_1/labels \
+  -H "Authorization: Bearer $CLERK_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"bug","color":"#1D9E75"}'
+```
 
 ### 19. POST /workspaces/:workspaceId/tasks/:taskId/labels
 
@@ -351,8 +401,8 @@ Assign a label to a task (writes to the `TaskLabel` join table).
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Schema:** `AssignLabelSchema` — `{ labelId: string }`
-- **Response:** `201 Created` with the `TaskLabel` row.
+- **Schema:** `AssignLabelInput` — `{ labelId: string }`
+- **Response:** `201 Created` with `{ success: true, data: <TaskLabel> }` (the raw `TaskLabel` join row).
 
 ### 20. GET /workspaces/:workspaceId/tasks/:taskId/labels
 
@@ -360,7 +410,7 @@ List labels currently assigned to a task.
 
 - **Auth:** Clerk JWT
 - **Role:** All roles
-- **Response:** `200 OK` with `Label[]`.
+- **Response:** `200 OK` with `{ success: true, data: Label[] }`.
 
 ### 21. DELETE /workspaces/:workspaceId/tasks/:taskId/labels/:labelId
 
@@ -368,13 +418,15 @@ Unassign a label from a task.
 
 - **Auth:** Clerk JWT
 - **Role:** `OWNER` / `ADMIN`
-- **Response:** `204 No Content`.
+- **Response:** `201 Created` with `{ success: true, data: <TaskLabel> }`.
+
+> **Known oversight:** the handler (`apps/api/src/modules/labels/label.controller.ts:deleteLabelFromTask`) returns `201 Created` instead of `200 OK` — tracked in Technical-Debt.md.
 
 ---
 
 ## Webhooks
 
-`POST /auth/webhook` receives Clerk `user.created` / `user.updated` / `user.deleted` events. Payloads are verified using Svix with the `CLERK_WEBHOOK_SECRET`. The route must be mounted with `express.raw` body parsing (already configured in `app.ts`). Configure the webhook endpoint in your Clerk dashboard to point at `https://<your-domain>/auth/webhook`.
+`POST /auth/webhook` is the only incoming webhook. Currently handles `user.created` only (creates or updates the User row via `syncClerkUser`); `user.updated` and `user.deleted` events are acknowledged with `200 OK` but the controller performs no action — tracked in Technical-Debt.md. Payloads are verified using Svix with the `CLERK_WEBHOOK_SECRET`. The route must be mounted with `express.raw` body parsing (already configured in `app.ts`). Configure the webhook endpoint in your Clerk dashboard to point at `https://<your-domain>/auth/webhook`.
 
 ---
 
@@ -410,5 +462,3 @@ Recent feature commits:
 - [Contributing Guide](../guides/contributing.md)
 
 ---
-
-**Document generated:** 2026-04-18

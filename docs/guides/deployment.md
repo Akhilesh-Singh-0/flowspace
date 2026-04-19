@@ -5,9 +5,9 @@ This guide covers promoting **flowspace** from local development to a production
 **Project:** flowspace
 **Artifact:** Node.js 18+ Express API (`apps/api/dist/server.js`)
 **Build Tool:** Turborepo 2.8.20 (pipeline in `turbo.json`)
+**Package Manager:** npm 10.8.3 (declared in the root `package.json` as `"packageManager": "npm@10.8.3"`)
 **Database:** PostgreSQL 15 (Prisma migrations)
 **Cache / Jobs:** Redis (BullMQ)
-**Generated:** 2026-04-18
 
 ---
 
@@ -16,20 +16,14 @@ This guide covers promoting **flowspace** from local development to a production
 Before deploying, run the full quality gate locally:
 
 ```bash
-pnpm test             # Vitest across every workspace
-pnpm build            # Turborepo builds apps/api -> apps/api/dist
+npm test             # Vitest across every workspace
+npm run build        # Turborepo builds apps/api -> apps/api/dist
 ```
 
-The build compiles TypeScript (`tsc`) into `apps/api/dist/`. Verify the output boots:
+The build compiles TypeScript (`tsc`) into `apps/api/dist/`. Verify the output boots locally and confirm Winston logs `FlowSpace API running` and `WebSocket server started` within a few seconds:
 
 ```bash
 node apps/api/dist/server.js
-```
-
-You should see the Express server bind to `PORT` and the WebSocket handler register. Hit the health check:
-
-```bash
-curl http://localhost:3000/health
 ```
 
 If any of these fail, stop — do not deploy a broken build.
@@ -54,6 +48,8 @@ Full list (for copy/paste into your platform's UI): `NODE_ENV, PORT, DATABASE_UR
 
 > **Important:** the Clerk keys must be **production** keys from your Clerk production instance. Using `sk_test_*` in production will reject real user JWTs. Rotate `CLERK_WEBHOOK_SECRET` whenever you rotate the webhook endpoint in Clerk.
 
+> **Warning — never deploy with `NODE_ENV=development`.** `authMiddleware` short-circuits Clerk verification in development mode (see `apps/api/src/middleware/requireAuth.ts` lines 17–20) and will treat every request as `userId=test-user-1`, granting unauthenticated access to every protected route. Always set `NODE_ENV=production` (or `test` for CI) on any deployed instance.
+
 ---
 
 ## 3. Database Migrations in Production
@@ -70,10 +66,10 @@ npx prisma migrate deploy
 A typical CI deploy sequence:
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm build
-pnpm --filter @flowspace/api exec prisma migrate deploy
-pnpm --filter @flowspace/api start    # node dist/server.js
+npm ci
+npm run build
+npx --workspace @flowspace/api prisma migrate deploy
+npm --workspace @flowspace/api run start    # node dist/server.js
 ```
 
 ---
@@ -99,7 +95,7 @@ The server listens on `PORT` (default `3000`). Handle `SIGTERM` for graceful shu
 
 ## 5. Deploying on Heroku
 
-Heroku reads `package.json` at the repo root. You'll need a monorepo-aware buildpack (the Node.js buildpack honors `pnpm-workspace.yaml`).
+Heroku reads `package.json` at the repo root. The default Node.js buildpack understands npm workspaces declared in the root `package.json`.
 
 ```bash
 heroku login
@@ -117,8 +113,8 @@ heroku config:set NODE_ENV=production \
 Add a `Procfile` at the repo root:
 
 ```
-release: pnpm --filter @flowspace/api exec prisma migrate deploy
-web: pnpm --filter @flowspace/api start
+release: npx --workspace @flowspace/api prisma migrate deploy
+web: npm --workspace @flowspace/api start
 ```
 
 The `release` phase runs `prisma migrate deploy` on every deploy, and `web` boots `node apps/api/dist/server.js`.
@@ -132,8 +128,8 @@ Use Managed PostgreSQL 15 + Managed Redis cluster; inject connection strings via
 In the App Platform UI:
 
 - **Source:** this Git repository, branch `main`
-- **Build command:** `pnpm install --frozen-lockfile && pnpm build`
-- **Run command:** `pnpm --filter @flowspace/api exec prisma migrate deploy && pnpm --filter @flowspace/api start`
+- **Build command:** `npm ci && npm run build`
+- **Run command:** `npx --workspace @flowspace/api prisma migrate deploy && npm --workspace @flowspace/api start`
 - **HTTP port:** `3000`
 - **Environment variables (encrypted):** `NODE_ENV, DATABASE_URL, REDIS_URL, CLERK_SECRET_KEY, CLERK_PUBLISHABLE_KEY, CLERK_WEBHOOK_SECRET`
 
@@ -150,11 +146,11 @@ A production Dockerfile for `apps/api`:
 ```dockerfile
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json package-lock.json ./
 COPY apps/api apps/api
 COPY packages packages
-RUN corepack enable && pnpm install --frozen-lockfile
-RUN pnpm build
+RUN npm ci
+RUN npm run build
 
 FROM node:18-alpine
 WORKDIR /app
@@ -181,14 +177,14 @@ docker run -d \
   flowspace-api
 ```
 
-For a self-contained stack, pair with a `postgres:15` service (env: `POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=flowspace`; port `5432`; volume `postgres_data` — see the repo's `docker-compose.yml`) and a `redis:7` service.
+For a self-contained stack, pair with a `postgres:15` service (env: `POSTGRES_USER=postgres, POSTGRES_PASSWORD=postgres, POSTGRES_DB=flowspace`; port `5432`; volume `postgres_data`) and a `redis:7-alpine` service (port `6379`; volume `redis_data:/data`) — exactly matching the repo's `docker-compose.yml`.
 
 ---
 
 ## 8. Redis and PostgreSQL Requirements
 
 - **PostgreSQL 15+** — Prisma targets the `postgresql` provider. The 8 models + migrations require at least v13, but 15 is the version we develop against.
-- **Redis 7+** — used for both Pub/Sub (real-time WebSocket fan-out) and BullMQ (notification queue). A single Redis instance is fine; use the same `REDIS_URL` for both.
+- **Redis 7+** — used for both Pub/Sub (real-time WebSocket fan-out) and BullMQ (notification queue). The repo's `docker-compose.yml` uses `redis:7-alpine`. A single Redis instance is fine; use the same `REDIS_URL` for both.
 
 Prisma manages its own connection pool. Tune via `?connection_limit=` on `DATABASE_URL` (e.g. `?connection_limit=10` for a mid-sized container).
 
@@ -230,10 +226,10 @@ docker logs -f flowspace-api           # Docker
 A minimal GitHub Actions `deploy` step:
 
 ```yaml
-- run: pnpm install --frozen-lockfile
-- run: pnpm build
-- run: pnpm --filter @flowspace/api exec prisma migrate deploy
-- run: pnpm --filter @flowspace/api start
+- run: npm ci
+- run: npm run build
+- run: npx --workspace @flowspace/api prisma migrate deploy
+- run: npm --workspace @flowspace/api run start
   env:
     NODE_ENV: production
     DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -247,22 +243,24 @@ A minimal GitHub Actions `deploy` step:
 
 ## 12. Post-Deploy Smoke Tests
 
-Hit these endpoints immediately after a deploy:
+There is no dedicated health endpoint (`/health` is not implemented). Instead, confirm the server is reachable and that authenticated traffic works:
 
 ```bash
-curl https://flowspace.example.com/health
-# {"status":"ok"}
+curl -I https://flowspace.example.com/
+# Expect: HTTP/1.1 404 Not Found — the server has no root route, but must respond.
+# If you get a connection error, the app has not started. Confirm via platform logs.
 
 curl -H "Authorization: Bearer $CLERK_JWT" https://flowspace.example.com/workspaces
-# [ ... ]
+# Expect: 200 OK with { "success": true, "data": [...] }
 
 curl -X POST -H "svix-id: ..." -H "svix-timestamp: ..." -H "svix-signature: ..." \
   --data @clerk-webhook-sample.json https://flowspace.example.com/auth/webhook
-# 200 OK when the signature matches CLERK_WEBHOOK_SECRET
+# Expect: 200 OK when the signature matches CLERK_WEBHOOK_SECRET
 ```
 
 Also check:
 
+- Production logs via your platform — confirm the Winston `FlowSpace API running` and `WebSocket server started` lines appeared
 - WebSocket upgrade (`wscat -c wss://flowspace.example.com`)
 - BullMQ queue depth (`notification` queue should be 0 at idle)
 - Prisma migration status (`npx prisma migrate status` against production `DATABASE_URL`)
@@ -276,5 +274,3 @@ Also check:
 3. If a migration corrupted data, restore from the last backup (see §9) before redeploying.
 
 ---
-
-**Document generated:** 2026-04-18

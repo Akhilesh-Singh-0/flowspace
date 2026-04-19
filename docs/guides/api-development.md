@@ -5,25 +5,24 @@ This guide walks you through adding new endpoints to **flowspace** while respect
 **Architecture Pattern:** Layered (Routes > Controllers > Services > Repositories) with feature modules
 **Framework:** Express 5.2.1 (Node.js + TypeScript)
 **Database:** PostgreSQL (via Prisma 5.22.0)
-**Authentication:** Clerk JWT via `@clerk/express` middleware (`authMiddleware` in `src/middleware/requireAuth.ts`)
+**Authentication:** Clerk JWT verified via `@clerk/backend`'s `verifyToken` inside `authMiddleware` (`apps/api/src/middleware/requireAuth.ts`)
 **Validation:** Zod 3.22.4 via `validate(schema)` middleware in `src/middleware/validate.ts`
-**Generated:** 2026-04-18
 
 ---
 
 ## 1. Mental Model — The Request Lifecycle
 
-Every request flows through the same five layers:
+Every request flows through the same layered pipeline:
 
 ```
 Client
   ↓ HTTP
 Route (apps/api/src/modules/<resource>/<resource>.routes.ts)
-  ↓ authMiddleware + validate(Schema) + requireRole(...)
+  ↓ authMiddleware + requireRole(...) + validate(Schema)
 Controller (<resource>.controller.ts)
-  ↓ parses req, calls service, formats response
+  ↓ parses req, calls service, formats response (wraps in { success, data })
 Service (<resource>.service.ts)
-  ↓ RBAC enforcement + business rules
+  ↓ business rules + RBAC helpers + side-effects
 Repository (<resource>.repository.ts)
   ↓ Prisma client calls
 PostgreSQL
@@ -73,31 +72,29 @@ Then generate a migration and regenerate the client:
 
 ```bash
 cd apps/api
-pnpm db:migrate          # prompts for migration name, applies it, regenerates client
-pnpm db:generate         # re-run if you only changed typing-relevant bits
+npm run db:migrate          # prompts for migration name, applies it, regenerates client
+npm run db:generate         # re-run if you only changed typing-relevant bits
 ```
 
 For our example (no new column), you can skip this step.
 
 ### Step 2 — Define a Zod Schema
 
-Put the input schema in `apps/api/src/modules/tasks/task.schema.ts`:
+Put the input schema in `apps/api/src/modules/tasks/task.schema.ts`.
+
+The shared `validate()` middleware (`apps/api/src/middleware/validate.ts`) runs `schema.parse(req.body)` and **only** validates `req.body` — `req.params` and `req.query` are not passed to Zod. Keep your schemas flat (don't nest them under a `body` / `params` / `query` wrapper):
 
 ```ts
 import { z } from 'zod';
 
 export const UpdateTaskStatusSchema = z.object({
-  body: z.object({
-    status: z.enum(['BACKLOG', 'TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE']),
-  }),
-  params: z.object({
-    workspaceId: z.string().cuid(),
-    taskId: z.string().cuid(),
-  }),
+  status: z.enum(['BACKLOG', 'IN_PROGRESS', 'IN_REVIEW', 'DONE', 'CANCELLED']),
 });
 
 export type UpdateTaskStatusInput = z.infer<typeof UpdateTaskStatusSchema>;
 ```
+
+Validate route parameters (e.g. `:workspaceId`, `:taskId`) inside the controller or service if you need to, using plain Zod schemas or string checks. The middleware does not do this for you today.
 
 ### Step 3 — Repository Method
 
@@ -117,12 +114,14 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus) {
 
 ### Step 4 — Service (Business Logic + RBAC)
 
-The service enforces access control and orchestrates side-effects (pub/sub events, BullMQ jobs). Add to `task.service.ts`:
+The service enforces workspace membership and orchestrates side-effects (pub/sub events, BullMQ jobs). Use `findWorkspaceMember` (the exported helper in `@/modules/workspaces/workspace.repository`) to confirm the caller belongs to the workspace, and `publish` from `@/lib/pubsub` to broadcast events on the `workspace-events` channel (which is what `task.service.ts` already does).
+
+Add to `task.service.ts`:
 
 ```ts
 import * as taskRepository from './task.repository';
-import { findMembership } from '@/modules/workspaces/workspace.repository';
-import { publishTaskEvent } from '@/lib/pubsub';
+import { findWorkspaceMember } from '@/modules/workspaces/workspace.repository';
+import { publish } from '@/lib/pubsub';
 import type { TaskStatus } from '@prisma/client';
 
 export async function updateStatus(params: {
@@ -131,7 +130,7 @@ export async function updateStatus(params: {
   taskId: string;
   status: TaskStatus;
 }) {
-  const membership = await findMembership(params.userId, params.workspaceId);
+  const membership = await findWorkspaceMember(params.userId, params.workspaceId);
   if (!membership) {
     throw Object.assign(new Error('Forbidden'), { status: 403 });
   }
@@ -139,7 +138,11 @@ export async function updateStatus(params: {
   const task = await taskRepository.updateTaskStatus(params.taskId, params.status);
 
   // Broadcast real-time update over Redis pub/sub (fan-out to WebSocket clients)
-  await publishTaskEvent(params.workspaceId, { type: 'task.updated', task });
+  await publish('workspace-events', {
+    type: 'task.updated',
+    workspaceId: params.workspaceId,
+    task,
+  });
 
   return task;
 }
@@ -147,12 +150,12 @@ export async function updateStatus(params: {
 
 ### Step 5 — Controller
 
-Controllers convert between HTTP and the service API. Add to `task.controller.ts`:
+Controllers convert between HTTP and the service API. The authenticated identity is exposed on `req.user.userId` (attached by `authMiddleware`), and every controller returns the shared `{ success: true, data: ... }` envelope. Add to `task.controller.ts`:
 
 ```ts
 import type { Request, Response, NextFunction } from 'express';
 import * as taskService from './task.service';
-import { findUserByClerkId } from '@/modules/users/user.repository';
+import { findUserByClerkId } from '@/lib/user.repository';
 
 export async function updateTaskStatusHandler(
   req: Request,
@@ -160,14 +163,14 @@ export async function updateTaskStatusHandler(
   next: NextFunction,
 ) {
   try {
-    const user = await findUserByClerkId(req.auth!.userId);
+    const user = await findUserByClerkId(req.user!.userId);
     const task = await taskService.updateStatus({
-      userId: user.id,
+      userId: user!.id,
       workspaceId: req.params.workspaceId,
       taskId: req.params.taskId,
       status: req.body.status,
     });
-    res.json(task);
+    res.status(200).json({ success: true, data: task });
   } catch (err) {
     next(err);
   }
@@ -176,7 +179,9 @@ export async function updateTaskStatusHandler(
 
 ### Step 6 — Register the Route
 
-Wire it up in `task.routes.ts`:
+Wire it up in `task.routes.ts`. Every resource router in `apps/api/src/app.ts` is mounted under a base path (`app.use('/workspaces', taskRoutes)`), so the router's paths must be relative to that mount — start them with `/:workspaceId/...`, not `/workspaces/...`.
+
+The canonical middleware order in `task.routes.ts` is `authMiddleware → requireRole(...) → validate(Schema) → handler`. Use that order for any new route:
 
 ```ts
 import { Router } from 'express';
@@ -186,35 +191,37 @@ import { validate } from '@/middleware/validate';
 import { UpdateTaskStatusSchema } from './task.schema';
 import { updateTaskStatusHandler } from './task.controller';
 
-const router = Router({ mergeParams: true });
+const router = Router();
 
 router.patch(
-  '/workspaces/:workspaceId/tasks/:taskId/status',
+  '/:workspaceId/tasks/:taskId/status',
   authMiddleware,
-  validate(UpdateTaskStatusSchema),
   requireRole('OWNER', 'ADMIN', 'MEMBER'),
+  validate(UpdateTaskStatusSchema),
   updateTaskStatusHandler,
 );
 
 export default router;
 ```
 
-The router is mounted in `apps/api/src/server.ts` (or `app.ts`), so re-exporting it from the module's index is enough for it to be picked up.
+> **Heads-up on current inconsistency:** `comment.routes.ts` and `label.routes.ts` currently place `validate(...)` **before** `requireRole(...)`, while `task.routes.ts`, `workspace.routes.ts`, and `project.routes.ts` place `requireRole(...)` first. Use the task-routes order (`auth → requireRole → validate → handler`) for any new code. Standardising the two older files is tracked in Technical-Debt.md.
+
+The router itself is mounted in `apps/api/src/app.ts` under `app.use('/workspaces', taskRoutes)`.
 
 ---
 
 ## 4. Middleware Conventions
 
-All protected routes use `authMiddleware` from `@/middleware/requireAuth`. Role-scoped routes also add `requireRole('OWNER', 'ADMIN', ...)`. The middleware populates `req.auth` with the Clerk user claims; resolve the internal User via `user.repository.ts`.
+All protected routes use `authMiddleware` from `@/middleware/requireAuth`. Role-scoped routes also add `requireRole('OWNER', 'ADMIN', ...)`. The middleware populates `req.user = { userId: string }` (where `userId` is the JWT's `sub` claim); resolve the internal user via `findUserByClerkId` in `@/lib/user.repository`.
 
 | Middleware | Purpose | Where |
 |---|---|---|
-| `authMiddleware` | Verifies Clerk JWT, populates `req.auth` | First on every protected route |
-| `validate(Schema)` | Runs Zod validation against `body`, `params`, `query` | After auth, before `requireRole` |
-| `requireRole('OWNER', 'ADMIN', ...)` | Checks workspace membership + role | After validate, before controller |
-| `errorHandler` | Maps thrown errors to JSON responses | Registered last in `app.ts` |
+| `authMiddleware` | Verifies Clerk JWT via `@clerk/backend`; populates `req.user = { userId: verified.sub }`. Short-circuits in `NODE_ENV=development` with `{ userId: 'test-user-1' }`. | First on every protected route |
+| `validate(Schema)` | Runs `Schema.parse(req.body)` — **only** the JSON body is validated, not `req.params` or `req.query` | After auth and (by convention) after `requireRole` |
+| `requireRole('OWNER', 'ADMIN', ...)` | Checks workspace membership + role | After auth, before `validate` in the canonical order |
+| `errorHandler` | Maps thrown errors to the unified JSON envelope `{ success, data, error: { code, message, fields? }, requestId }` | Registered last in `app.ts` |
 
-Validation errors are converted to `400` responses by `errorHandler`. Role failures become `403`.
+Validation errors short-circuit into `errorHandler` as `400` responses with `error.code = VALIDATION_ERROR` and a populated `error.fields` map. Role failures are surfaced by `requireRole` as `403`.
 
 ---
 
@@ -234,18 +241,19 @@ Never instantiate `new PrismaClient()` in a module — this leaks connections in
 
 ## 6. Authentication Section
 
-All protected routes use `authMiddleware` from `@/middleware/requireAuth`. The middleware:
+All protected routes use `authMiddleware` from `@/middleware/requireAuth`. The middleware, in order:
 
-1. Extracts the `Authorization: Bearer <jwt>` header
-2. Verifies the JWT via `@clerk/express`
-3. Attaches `req.auth = { userId, sessionId, ... }`
+1. If `NODE_ENV === 'development'` → inject `req.user = { userId: 'test-user-1' }` and `return next()` (no JWT is verified). Never deploy the API with `NODE_ENV=development`.
+2. Otherwise extract the `Authorization: Bearer <jwt>` header; return `401 UNAUTHORIZED` if missing or malformed.
+3. Call `verifyToken(token, { secretKey: CLERK_SECRET_KEY })` from `@clerk/backend`. On an expired JWT the catch branch returns `401 TOKEN_EXPIRED`; any other verification failure returns `401 UNAUTHORIZED`.
+4. On success, attach `req.user = { userId: verified.sub }` and call `next()`.
 
-To resolve the internal `User` record from the Clerk ID:
+Only the `userId` field is attached to `req.user` — there is no `sessionId` or other Clerk claim available on the request. To resolve the internal `User` record:
 
 ```ts
-import { findUserByClerkId } from '@/modules/users/user.repository';
+import { findUserByClerkId } from '@/lib/user.repository';
 
-const user = await findUserByClerkId(req.auth!.userId);
+const user = await findUserByClerkId(req.user!.userId);
 ```
 
 Users are auto-provisioned by the Clerk webhook at `POST /auth/webhook` (Svix-verified).
@@ -254,12 +262,12 @@ Users are auto-provisioned by the Clerk webhook at `POST /auth/webhook` (Svix-ve
 
 ## 7. Database Migrations
 
-Edit `apps/api/prisma/schema.prisma`, then run `pnpm db:migrate` to generate and apply a new migration. Always run `pnpm db:generate` after schema changes to update the Prisma client types.
+Edit `apps/api/prisma/schema.prisma`, then run `npm run db:migrate` to generate and apply a new migration. Always run `npm run db:generate` after schema changes to update the Prisma client types.
 
 ```bash
 cd apps/api
-pnpm db:migrate           # prompts for a name, runs prisma migrate dev
-pnpm db:generate          # regenerates the typed client
+npm run db:migrate           # prompts for a name, runs prisma migrate dev
+npm run db:generate          # regenerates the typed client
 ```
 
 Migration files land in `apps/api/prisma/migrations/<timestamp>_<name>/`. Commit both the schema and the new migration directory.
@@ -298,7 +306,7 @@ Then set breakpoints in `src/modules/<resource>/*.controller.ts` from VS Code.
 Colocate tests with the module they cover (`apps/api/src/modules/tasks/task.service.test.ts`). The test directory is `apps/api/src` (colocated; no tests yet).
 
 ```bash
-pnpm test                                # run everything through Turborepo
+npm test                                 # run everything through Turborepo
 npx vitest                               # watch mode, from apps/api
 npx vitest run src/modules/tasks         # a single module
 ```
@@ -307,13 +315,27 @@ See the [Contributing Guide](./contributing.md) for test conventions and the Vit
 
 ---
 
-## 11. Checklist Before Opening a PR
+## 11. Utilities and Extension Points
+
+A few empty stub files exist under `apps/api/src/` as future extension points. They are NOT implemented yet — the comments below apply to every one of them:
+
+- `apps/api/src/middleware/rateLimiter.ts` — empty. Rate limiting is not implemented.
+- `apps/api/src/utils/pagination.ts` — empty. No endpoints accept `?page=` / `?pageSize=` today.
+- `apps/api/src/utils/slugify.ts` — empty.
+- `apps/api/src/utils/crypto.ts` — empty.
+- `apps/api/src/config/constants.ts` — empty.
+
+All five are tracked in Technical-Debt.md and will be filled in when the corresponding features land. Don't import them until you see a real export.
+
+---
+
+## 12. Checklist Before Opening a PR
 
 - [ ] New Prisma migration committed (if schema changed) and `prisma generate` run
-- [ ] Zod schema added in `<resource>.schema.ts`
+- [ ] Zod schema added in `<resource>.schema.ts` (flat, not nested under `body` / `params`)
 - [ ] Repository method has no business logic
-- [ ] Service enforces RBAC before calling the repository
-- [ ] Route wires `authMiddleware` + `validate(...)` + `requireRole(...)` in that order
+- [ ] Service enforces RBAC (via `findWorkspaceMember` or `requireRole`) before calling the repository
+- [ ] Route wires `authMiddleware` → `requireRole(...)` → `validate(...)` → handler (in that order)
 - [ ] Error paths go through `next(err)` so `errorHandler` can format them
 - [ ] Winston logs added for observability
 - [ ] Vitest tests for the new service/controller paths
@@ -321,5 +343,3 @@ See the [Contributing Guide](./contributing.md) for test conventions and the Vit
 ---
 
 **Example Resource:** tasks — see `apps/api/src/modules/tasks/` for the complete reference implementation including `createTaskHandler`, `getTaskHandler`, `updateTaskHandler`, `deleteTaskHandler`.
-
-**Document generated:** 2026-04-18
