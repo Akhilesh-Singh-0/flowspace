@@ -8,8 +8,8 @@ import {
 export const createCommentHandler = async(req: Request, res: Response, next: NextFunction)=>
 {
   try {
-    const taskId = req.params.id as string
-    const body = req.body
+    const taskId = req.params.taskId as string
+    const body = req.body.body
     const clerkId = req.user!.userId
 
     const comment = await addComment(clerkId, taskId, body);

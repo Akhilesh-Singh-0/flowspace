@@ -46,7 +46,7 @@ export const getLabelHandler = async (req: Request, res: Response,  next: NextFu
 
         const label = await getTaskLabels(taskId)
 
-        return res.status(201).json({
+        return res.status(200).json({
         success: true,
         data: label
     })
@@ -62,7 +62,7 @@ export const deleteLabelFromTask = async (req: Request, res: Response,  next: Ne
 
         const label = await removeLabelFromTask(taskId, labelId)
 
-        return res.status(201).json({
+        return res.status(200).json({
         success: true,
         data: label
     })

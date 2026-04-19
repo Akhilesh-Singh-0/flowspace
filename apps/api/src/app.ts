@@ -1,3 +1,5 @@
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from '@/lib/swagger'
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -77,6 +79,7 @@ export const createApp = () => {
     })
   })
 
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
   app.use(errorHandler)
 
   return app
