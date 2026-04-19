@@ -165,8 +165,42 @@ Health check at `http://localhost:3000/health`
 
 ## Documentation
 
-- [Backend API Documentation](./apps/api/README.md)
-- Frontend Documentation — coming soon
+- [Getting Started Guide](docs/guides/getting-started.md) — local setup walkthrough
+- [API Development Guide](docs/guides/api-development.md) — how to add new endpoints
+- [Deployment Guide](docs/guides/deployment.md) — production deployment instructions
+- [Contributing Guide](docs/guides/contributing.md) — coding standards and workflow
+- [API Reference](docs/api/README.md) — all 21 endpoints, auth, and error codes
+- [Architecture Diagrams](docs/architecture/) — MVC flow, ER diagram, endpoint map
+- [Backend README](./apps/api/README.md) — backend-specific notes
+
+---
+
+## Configuration
+
+All runtime configuration for the API lives in `apps/api/.env`. Create it from the template:
+
+```bash
+cp apps/api/.env.example apps/api/.env
+```
+
+Then fill in values for the following variables:
+
+| Variable | Purpose | Where to get it |
+|---|---|---|
+| `NODE_ENV` | Runtime mode (`development` / `production` / `test`) | Set locally |
+| `PORT` | HTTP port the API binds to | Defaults to `4000` |
+| `DATABASE_URL` | PostgreSQL connection string | Matches `postgres` service in `docker-compose.yml` |
+| `REDIS_URL` | Redis connection string (pub/sub + BullMQ) | Matches `redis` service in `docker-compose.yml` |
+| `CLERK_SECRET_KEY` | Clerk backend secret (verifies JWTs) | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_PUBLISHABLE_KEY` | Clerk frontend publishable key | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_WEBHOOK_SECRET` | Svix signing secret for `POST /auth/webhook` | Clerk Dashboard → Webhooks → Endpoint signing secret |
+
+**Infrastructure tips:**
+- **Postgres** — the included `docker-compose.yml` starts Postgres 15 with `user=postgres`, `password=postgres`, `db=flowspace` on port `5432`. Start it with `docker-compose up -d`.
+- **Redis** — the same `docker-compose.yml` exposes Redis on port `6379`. No auth in local dev.
+- **Clerk** — create a free Clerk application, then copy the test keys (`sk_test_*` / `pk_test_*`). Never commit live keys.
+
+After editing `.env`, run migrations once with `cd apps/api && npx prisma migrate dev`.
 
 ---
 
