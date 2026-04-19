@@ -12,9 +12,7 @@
 
 # FlowSpace
 
-### Production-grade project management API — built from scratch
-
-> Think Linear or Jira, but every layer is hand-crafted to understand how these systems *actually* work under the hood.
+### A project management backend — workspaces, roles, real-time updates, background jobs.
 
 ![Status](https://img.shields.io/badge/status-building%20in%20public-1D9E75?style=flat-square)
 ![Stack](https://img.shields.io/badge/stack-Node.js%20%7C%20TypeScript%20%7C%20PostgreSQL-3C3489?style=flat-square)
@@ -26,52 +24,61 @@
 
 ## What is FlowSpace?
 
-FlowSpace is a **project management platform** built from the ground up — workspaces, roles, projects, tasks, real-time updates, and background notifications. No shortcuts, no magic abstractions hiding how things work.
+FlowSpace is a **project management platform** — workspaces, roles, projects, tasks, real-time updates, and background notifications. Every layer is hand-crafted. Every decision is intentional.
 
-This is not a tutorial project. Every architectural decision is intentional:
-
-- **4-layer REST API** — Route → Controller → Service → Repository
-- **Role-based access control** — OWNER, ADMIN, MEMBER, VIEWER with enforced permissions at the service layer
-- **Atomic operations** — workspace creation assigns roles in a single Prisma transaction
-- **Real-time** — task updates pushed live via WebSockets + Redis Pub/Sub
+- **Multi-tenant workspaces** — users belong to multiple workspaces with different roles
+- **Role-based access control** — OWNER, ADMIN, MEMBER, VIEWER enforced at the service layer
+- **Real-time updates** — task changes pushed live via WebSockets + Redis Pub/Sub
 - **Background jobs** — notifications processed asynchronously via BullMQ
-- **Auth** — Clerk JWT middleware on every protected route, users auto-synced to PostgreSQL via webhook
+- **Auth** — Clerk JWT on every protected route, users auto-synced via webhook
+
+---
+
+## Monorepo Structure
+
+    flowspace/
+    ├── apps/
+    │   ├── api/          ← Node.js + Express backend
+    │   └── web/          ← Frontend (coming soon)
+    ├── packages/         ← Shared packages
+    ├── docker-compose.yml
+    └── turbo.json
 
 ---
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                        Client                           │
-└────────────────────────┬────────────────────────────────┘
-                         │ HTTP / WebSocket
-┌────────────────────────▼────────────────────────────────┐
-│                    API Server                           │
-│                                                         │
-│  Route Layer        → express router, input validation  │
-│  Controller Layer   → request/response handling         │
-│  Service Layer      → business logic + RBAC checks      │
-│  Repository Layer   → Prisma ORM + PostgreSQL           │
-└──────────┬──────────────────────┬───────────────────────┘
-           │                      │
-┌──────────▼──────┐    ┌──────────▼──────────────────────┐
-│   PostgreSQL    │    │         Redis                   │
-│                 │    │                                 │
-│  Users          │    │  Pub/Sub (real-time events)     │
-│  Workspaces     │    │  BullMQ queues (notifications)  │
-│  Members        │    │                                 │
-│  Projects       │    └─────────────────────────────────┘
-│  Tasks          │
-└─────────────────┘
-        ▲
-        │ JWT verification
-┌───────┴─────────┐
-│      Clerk      │
-│   (Auth + User  │
-│    webhook)     │
-└─────────────────┘
-```
+    ┌─────────────────────────────────────────────────────────┐
+    │                        Client                           │
+    └────────────────────────┬────────────────────────────────┘
+                             │ HTTP / WebSocket
+    ┌────────────────────────▼────────────────────────────────┐
+    │                    API Server                           │
+    │                                                         │
+    │  Route Layer        → express router, input validation  │
+    │  Controller Layer   → request/response handling         │
+    │  Service Layer      → business logic + RBAC checks      │
+    │  Repository Layer   → Prisma ORM + PostgreSQL           │
+    └──────────┬──────────────────────┬───────────────────────┘
+               │                      │
+    ┌──────────▼──────┐    ┌──────────▼──────────────────────┐
+    │   PostgreSQL    │    │         Redis                   │
+    │                 │    │                                 │
+    │  Users          │    │  Pub/Sub (real-time events)     │
+    │  Workspaces     │    │  BullMQ queues (notifications)  │
+    │  Members        │    │                                 │
+    │  Projects       │    └─────────────────────────────────┘
+    │  Tasks          │
+    │  Comments       │
+    │  Labels         │
+    └─────────────────┘
+            ▲
+            │ JWT verification
+    ┌───────┴─────────┐
+    │      Clerk      │
+    │   (Auth + User  │
+    │    webhook)     │
+    └─────────────────┘
 
 ---
 
@@ -91,85 +98,6 @@ This is not a tutorial project. Every architectural decision is intentional:
 | Monorepo | Turborepo |
 | Local Infra | Docker |
 | Validation | Zod |
-
----
-
-## What's Built So Far
-
-### ✅ Core Infrastructure
-- [x] Turborepo monorepo with `apps/api` and `packages/` structure
-- [x] Docker Compose for local PostgreSQL + Redis
-- [x] Global error handling middleware
-- [x] Request ID tracing on every request
-- [x] Zod validation on all incoming data
-
-### ✅ Auth
-- [x] `requireAuth` middleware — verifies Clerk JWT on every protected route
-- [x] `POST /auth/webhook` — syncs new Clerk users to PostgreSQL automatically via Svix
-
-### ✅ Workspaces
-- [x] `POST /workspaces` — creates workspace + assigns OWNER role atomically (Prisma transaction)
-- [x] `GET /workspaces` — returns all workspaces a user belongs to, with their role
-
----
-
-## What's Coming Next
-
-### 🔧 In Progress
-- [ ] **RBAC** — full role-based permission checks at service layer for every action
-- [ ] **Workspace Members API** — invite, list, remove with role-enforced permissions
-  - OWNER can remove anyone
-  - ADMIN can remove MEMBER and VIEWER only
-
-### 📋 Roadmap
-- [ ] Projects CRUD — create, list, update, delete projects inside a workspace
-- [ ] Tasks CRUD — create tasks with status (todo / in-progress / done), labels, assignees
-- [ ] Task comments — team members comment on tasks
-- [ ] **Real-time updates** — WebSockets + Redis Pub/Sub so every task change is pushed live
-- [ ] **Background notifications** — BullMQ processes notifications async (assignment, comments)
-- [ ] Frontend — React dashboard consuming this API
-
----
-
-## User Journey
-
-```
-User signs up
-     │
-     ▼ Clerk handles auth
-     │ Webhook syncs user to PostgreSQL
-     │
-     ▼ Creates a Workspace → becomes OWNER automatically
-     │
-     ▼ Invites teammates → assigns roles (ADMIN / MEMBER / VIEWER)
-     │
-     ▼ Team creates Projects inside the workspace
-     │
-     ▼ Team creates Tasks inside projects
-     │   → assign to member
-     │   → set status: todo / in-progress / done
-     │   → add labels: bug / feature / urgent
-     │   → comment on tasks
-     │
-     ▼ Everyone sees updates in real-time (no refresh needed)
-     │
-     ▼ Notifications sent in background when tasks are assigned or commented
-```
-
----
-
-## Role Permissions
-
-| Action | OWNER | ADMIN | MEMBER | VIEWER |
-|---|:---:|:---:|:---:|:---:|
-| Create workspace | ✅ | — | — | — |
-| Invite members | ✅ | ✅ | — | — |
-| Remove any member | ✅ | — | — | — |
-| Remove MEMBER/VIEWER | ✅ | ✅ | — | — |
-| Create projects | ✅ | ✅ | ✅ | — |
-| Create & edit tasks | ✅ | ✅ | ✅ | — |
-| Comment on tasks | ✅ | ✅ | ✅ | — |
-| View everything | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -206,6 +134,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/flowspace"
 CLERK_SECRET_KEY="sk_test_..."
 CLERK_WEBHOOK_SECRET="whsec_..."
 REDIS_URL="redis://localhost:6379"
+PORT=3000
 ```
 
 ### 4. Start local infrastructure
@@ -219,59 +148,33 @@ docker-compose up -d
 ```bash
 cd apps/api
 npx prisma migrate dev
+npx prisma generate
 ```
 
 ### 6. Start the dev server
 
 ```bash
-# From root
+cd ../..
 npm run dev
 ```
 
 API runs at `http://localhost:3000`
+Health check at `http://localhost:3000/health`
 
 ---
 
-## API Reference
+## Documentation
 
-### Auth
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/auth/webhook` | Clerk webhook — syncs new users to DB |
-
-### Workspaces
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| POST | `/workspaces` | Create a workspace (caller becomes OWNER) | ✅ |
-| GET | `/workspaces` | Get all workspaces the user belongs to | ✅ |
-
-> More endpoints coming as features are built — follow along.
+- [Backend API Documentation](./apps/api/README.md)
+- Frontend Documentation — coming soon
 
 ---
 
 ## Building in Public
 
-I'm building FlowSpace in public — shipping real features, documenting real decisions, and sharing what I learn along the way.
+Follow the journey on Twitter/X: [@singh_akhil2272](https://twitter.com/singh_akhil2272)
 
-Follow the journey:
-- 🐦 Twitter/X: [@singh_akhil2272](https://twitter.com/singh_akhil2272)
-- 💼 LinkedIn: [Akhilesh Singh](https://linkedin.com/in/akhilesh-singh-dev)
-
-If you're building something similar or want to talk backend architecture — DM is open.
-
----
-
-## Why I'm Building This
-
-Most developers use Jira or Linear without understanding what's happening under the hood.
-
-Building a production-grade version from scratch forces you to think about:
-- How atomic operations prevent data inconsistency
-- How RBAC should live at the service layer, not the route layer
-- How real-time updates scale with Pub/Sub instead of polling
-- How background jobs decouple notification logic from request handling
-
-This project is my proof of work.
+If you're hiring for backend roles or internships — DM is open.
 
 ---
 
