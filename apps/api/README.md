@@ -314,6 +314,7 @@ npm run dev
 
 API runs at `http://localhost:3000`
 Health check at `http://localhost:3000/health`
+API Documentation at `http://localhost:3000/api-docs`
 
 ---
 
