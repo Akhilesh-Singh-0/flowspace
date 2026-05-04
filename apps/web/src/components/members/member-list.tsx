@@ -1,9 +1,10 @@
 'use client'
 
 import { useMembers, useRemoveMember } from '@/hooks/use-members'
-import { useAuth } from '@clerk/nextjs'
+import { useUser } from '@clerk/nextjs'
 import type { WorkspaceMember } from '@/types'
 import { cn } from '@/lib/utils'
+import { UserMinus } from 'lucide-react'
 
 const roleConfig = {
   OWNER:  { label: 'Owner',  className: 'bg-primary/10 text-primary' },
@@ -15,27 +16,28 @@ const roleConfig = {
 function MemberItem({
   member,
   workspaceId,
-  currentUserId,
+  currentDbUserId,
   isOwner,
 }: {
   member: WorkspaceMember
   workspaceId: string
-  currentUserId: string | null | undefined
+  currentDbUserId: string | null
   isOwner: boolean
 }) {
   const { mutate: removeMember, isPending } = useRemoveMember(workspaceId)
   const role = roleConfig[member.role]
   const initials = member.user.name
     ? member.user.name.slice(0, 2).toUpperCase()
-    : member.user.email.slice(0, 2).toUpperCase()
-
-  const isSelf = currentUserId === member.user.id
+    : member.user.email
+    ? member.user.email.slice(0, 2).toUpperCase()
+    : '??'
+  const isSelf = currentDbUserId === member.user.id
   const canRemove = isOwner && !isSelf && member.role !== 'OWNER'
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5">
+    <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
+        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0 transition-colors duration-200 group-hover:bg-primary/20">
           {initials}
         </div>
         <div className="min-w-0">
@@ -43,7 +45,7 @@ function MemberItem({
             {member.user.name ?? 'Unknown'}
           </p>
           <p className="text-xs text-muted-foreground truncate">
-            {member.user.email}
+            {member.user.email || 'No email'}
           </p>
         </div>
       </div>
@@ -53,13 +55,16 @@ function MemberItem({
           {role.label}
         </span>
         {canRemove && (
-          <button
-            onClick={() => removeMember(member.user.id)}
-            disabled={isPending}
-            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-          >
-            Remove
-          </button>
+          <div className="flex items-center rounded-md border border-border bg-secondary px-0.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            <button
+              onClick={() => removeMember(member.user.id)}
+              disabled={isPending}
+              title="Remove member"
+              className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150 disabled:opacity-50"
+            >
+              <UserMinus className="w-3 h-3" />
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -68,39 +73,49 @@ function MemberItem({
 
 export function MemberList({ workspaceId }: { workspaceId: string }) {
   const { data: members, isLoading, isError } = useMembers(workspaceId)
-  const { userId } = useAuth()
+  const { user } = useUser()
 
-  const currentMember = members?.find((m) => m.user.id === userId)
+  const currentName = user?.fullName
+  const currentEmail = user?.primaryEmailAddress?.emailAddress
+
+  const currentDbUserId =
+  members?.find((m) => {
+    if (!m.user.name) return false
+    const dbName = m.user.name.toLowerCase().replace(/\s/g, '')
+    const clerkFull = (currentName ?? '').toLowerCase().replace(/\s/g, '')
+    const clerkFirst = (user?.firstName ?? '').toLowerCase()
+    const clerkEmail = (currentEmail ?? '').toLowerCase()
+
+    return (
+      (m.user.email && m.user.email === clerkEmail) ||
+      dbName === clerkFull ||
+      clerkFull.includes(dbName) ||
+      dbName.includes(clerkFirst)
+    )
+  })?.user.id ?? null
+
+  const currentMember = members?.find((m) => m.user.id === currentDbUserId)
   const isOwner = currentMember?.role === 'OWNER'
 
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-16 rounded-lg border border-border bg-card animate-pulse"
-          />
+          <div key={i} className="h-16 rounded-lg border border-border bg-card animate-pulse" />
         ))}
       </div>
     )
   }
 
   if (isError) {
-    return (
-      <p className="text-sm text-destructive">
-        Failed to load members. Please try again.
-      </p>
-    )
+    return <p className="text-sm text-destructive">Failed to load members. Please try again.</p>
   }
 
   if (!members || members.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
         <p className="text-sm font-medium text-foreground">No members yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Invite someone to collaborate
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">Invite someone to collaborate</p>
       </div>
     )
   }
@@ -112,7 +127,7 @@ export function MemberList({ workspaceId }: { workspaceId: string }) {
           key={member.user.id}
           member={member}
           workspaceId={workspaceId}
-          currentUserId={userId}
+          currentDbUserId={currentDbUserId}
           isOwner={isOwner ?? false}
         />
       ))}
