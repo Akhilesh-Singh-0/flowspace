@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
+import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
 import type { Project } from '@/types'
 
@@ -63,6 +64,10 @@ export function useCreateProject(workspaceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] })
+      toast.success('Project created')
+    },
+    onError: () => {
+      toast.error('Failed to create project')
     },
   })
 }
@@ -88,6 +93,10 @@ export function useUpdateProject(workspaceId: string) {
         (old: Project[] | undefined) =>
           old?.map((p) => (p.id === updatedProject.id ? updatedProject : p)) ?? []
       )
+      toast.success('Project updated')
+    },
+    onError: () => {
+      toast.error('Failed to update project')
     },
   })
 }
@@ -106,6 +115,10 @@ export function useDeleteProject(workspaceId: string) {
         ['projects', workspaceId],
         (old: Project[] | undefined) => old?.filter((p) => p.id !== projectId) ?? []
       )
+      toast.success('Project deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete project')
     },
   })
 }

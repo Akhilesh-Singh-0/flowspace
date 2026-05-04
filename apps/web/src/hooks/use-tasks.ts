@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
+import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
 import type { Task, TaskStatus, TaskPriority } from '@/types'
 
@@ -46,10 +47,7 @@ async function updateTask(
   }
 ): Promise<Task> {
   setAuthToken(token)
-  console.log('PATCH URL:', `/workspaces/${workspaceId}/tasks/${taskId}`)
-  console.log('PATCH data:', data)
   const res = await api.patch(`/workspaces/${workspaceId}/tasks/${taskId}`, data)
-  console.log('PATCH response:', res.data)
   return res.data.data
 }
 
@@ -91,6 +89,10 @@ export function useCreateTask(workspaceId: string, projectId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId, projectId] })
+      toast.success('Task created')
+    },
+    onError: () => {
+      toast.error('Failed to create task')
     },
   })
 }
@@ -114,21 +116,19 @@ export function useUpdateTask(workspaceId: string, projectId: string) {
         assigneeId?: string | null
       }
     }) => {
-      console.log('mutationFn called — taskId:', taskId, 'data:', data)
       const token = await getToken()
-      console.log('token first 20:', token?.slice(0, 20))
       return updateTask(token!, workspaceId, taskId, data)
     },
     onSuccess: (updatedTask) => {
-      console.log('onSuccess — updatedTask:', updatedTask)
       queryClient.setQueryData(
         ['tasks', workspaceId, projectId],
         (old: Task[] | undefined) =>
           old?.map((t) => (t.id === updatedTask.id ? updatedTask : t)) ?? []
       )
+      toast.success('Task updated')
     },
-    onError: (error) => {
-      console.error('updateTask error:', error)
+    onError: () => {
+      toast.error('Failed to update task')
     },
   })
 }
@@ -147,6 +147,10 @@ export function useDeleteTask(workspaceId: string, projectId: string) {
         ['tasks', workspaceId, projectId],
         (old: Task[] | undefined) => old?.filter((t) => t.id !== taskId) ?? []
       )
+      toast.success('Task deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete task')
     },
   })
 }

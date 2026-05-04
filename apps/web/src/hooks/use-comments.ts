@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
+import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
 import type { Comment } from '@/types'
 
@@ -11,23 +12,13 @@ async function fetchComments(workspaceId: string, taskId: string, token: string)
   return res.data.data as Comment[]
 }
 
-async function createComment(
-  workspaceId: string,
-  taskId: string,
-  body: string,
-  token: string
-) {
+async function createComment(workspaceId: string, taskId: string, body: string, token: string) {
   setAuthToken(token)
   const res = await api.post(`/workspaces/${workspaceId}/tasks/${taskId}/comments`, { body })
   return res.data.data as Comment
 }
 
-async function deleteComment(
-  workspaceId: string,
-  taskId: string,
-  commentId: string,
-  token: string
-) {
+async function deleteComment(workspaceId: string, taskId: string, commentId: string, token: string) {
   setAuthToken(token)
   await api.delete(`/workspaces/${workspaceId}/tasks/${taskId}/comments/${commentId}`)
 }
@@ -56,6 +47,10 @@ export function useCreateComment(workspaceId: string, taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', workspaceId, taskId] })
+      toast.success('Comment added')
+    },
+    onError: () => {
+      toast.error('Failed to add comment')
     },
   })
 }
@@ -71,6 +66,10 @@ export function useDeleteComment(workspaceId: string, taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', workspaceId, taskId] })
+      toast.success('Comment deleted')
+    },
+    onError: () => {
+      toast.error('Failed to delete comment')
     },
   })
 }

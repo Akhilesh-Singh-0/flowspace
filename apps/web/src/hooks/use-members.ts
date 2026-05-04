@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
+import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
 import type { WorkspaceMember } from '@/types'
 
@@ -11,25 +12,13 @@ async function fetchMembers(workspaceId: string, token: string) {
   return res.data.data as WorkspaceMember[]
 }
 
-async function inviteMember(
-  workspaceId: string,
-  targetUserId: string,
-  role: string,
-  token: string
-) {
+async function inviteMember(workspaceId: string, targetUserId: string, role: string, token: string) {
   setAuthToken(token)
-  const res = await api.post(`/workspaces/${workspaceId}/members`, {
-    targetUserId,
-    role,
-  })
+  const res = await api.post(`/workspaces/${workspaceId}/members`, { targetUserId, role })
   return res.data.data
 }
 
-async function removeMember(
-  workspaceId: string,
-  userId: string,
-  token: string
-) {
+async function removeMember(workspaceId: string, userId: string, token: string) {
   setAuthToken(token)
   await api.delete(`/workspaces/${workspaceId}/members/${userId}`)
 }
@@ -52,18 +41,16 @@ export function useInviteMember(workspaceId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      targetUserId,
-      role,
-    }: {
-      targetUserId: string
-      role: string
-    }) => {
+    mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: string }) => {
       const token = await getToken()
       return inviteMember(workspaceId, targetUserId, role, token!)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members', workspaceId] })
+      toast.success('Member invited')
+    },
+    onError: () => {
+      toast.error('Failed to invite member')
     },
   })
 }
@@ -79,6 +66,10 @@ export function useRemoveMember(workspaceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members', workspaceId] })
+      toast.success('Member removed')
+    },
+    onError: () => {
+      toast.error('Failed to remove member')
     },
   })
 }

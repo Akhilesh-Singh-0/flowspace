@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@clerk/nextjs'
+import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
 import type { Label, TaskLabel } from '@/types'
 
@@ -23,12 +24,7 @@ async function assignLabel(workspaceId: string, taskId: string, labelId: string,
   return res.data.data
 }
 
-async function removeLabel(
-  workspaceId: string,
-  taskId: string,
-  labelId: string,
-  token: string
-) {
+async function removeLabel(workspaceId: string, taskId: string, labelId: string, token: string) {
   setAuthToken(token)
   await api.delete(`/workspaces/${workspaceId}/tasks/${taskId}/labels/${labelId}`)
 }
@@ -59,6 +55,10 @@ export function useCreateLabel(workspaceId: string, taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels', workspaceId, taskId] })
+      toast.success('Label added')
+    },
+    onError: () => {
+      toast.error('Failed to add label')
     },
   })
 }
@@ -74,6 +74,10 @@ export function useAssignLabel(workspaceId: string, taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels', workspaceId, taskId] })
+      toast.success('Label assigned')
+    },
+    onError: () => {
+      toast.error('Failed to assign label')
     },
   })
 }
@@ -89,6 +93,10 @@ export function useRemoveLabel(workspaceId: string, taskId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['labels', workspaceId, taskId] })
+      toast.success('Label removed')
+    },
+    onError: () => {
+      toast.error('Failed to remove label')
     },
   })
 }
