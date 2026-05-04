@@ -47,6 +47,13 @@
     --input: 228 12% 13%;
     --ring: 243 75% 65%;
   }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
