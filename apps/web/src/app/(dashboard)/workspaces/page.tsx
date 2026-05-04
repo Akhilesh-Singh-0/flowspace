@@ -16,12 +16,12 @@ export default function WorkspacesPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <Header
-        title="Workspaces"
-        description="Switch between your workspaces or create a new one."
+        title="Your Workspaces"
+        description="Pick up where you left off, or start something new."
         action={
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#1D9E75] hover:bg-[#179E6E] text-white gap-2"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
           >
             <Plus size={15} />
             New workspace
@@ -48,11 +48,11 @@ export default function WorkspacesPage() {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
             <p className="text-sm font-medium text-foreground">No workspaces yet</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Create your first workspace to get started
+              Create a workspace to start organizing your projects and team.
             </p>
             <Button
               onClick={() => setOpen(true)}
-              className="mt-4 bg-[#1D9E75] hover:bg-[#179E6E] text-white gap-2"
+              className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
             >
               <Plus size={15} />
               New workspace

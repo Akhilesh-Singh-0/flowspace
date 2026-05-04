@@ -19,11 +19,11 @@ export default function WorkspacePage() {
     <div className="mx-auto max-w-2xl">
       <Header
         title="Projects"
-        description="All projects in this workspace."
+        description="Everything your team is working on, in one place."
         action={
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#1D9E75] hover:bg-[#179E6E] text-white gap-2"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
           >
             <Plus size={15} />
             New project
@@ -50,11 +50,11 @@ export default function WorkspacePage() {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
             <p className="text-sm font-medium text-foreground">No projects yet</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Create your first project to get started
+              Create your first project and start tracking work.
             </p>
             <Button
               onClick={() => setOpen(true)}
-              className="mt-4 bg-[#1D9E75] hover:bg-[#179E6E] text-white gap-2"
+              className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
             >
               <Plus size={15} />
               New project

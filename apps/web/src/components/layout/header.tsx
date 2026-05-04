@@ -12,9 +12,9 @@ export function Header({
   return (
     <div className="flex items-center justify-between mb-8">
       <div>
-        <h1 className="text-xl font-semibold text-foreground tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">{title}</h1>
         {description && (
-          <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
         )}
       </div>
       {action && <div>{action}</div>}

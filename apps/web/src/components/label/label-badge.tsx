@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { X } from 'lucide-react'
 
 export function LabelBadge({
   name,
@@ -11,10 +11,10 @@ export function LabelBadge({
 }) {
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
       style={{
         backgroundColor: `${color}18`,
-        borderColor: `${color}40`,
+        borderColor: `${color}50`,
         color: color,
       }}
     >
@@ -29,9 +29,14 @@ export function LabelBadge({
             e.stopPropagation()
             onRemove()
           }}
-          className="ml-0.5 hover:opacity-70 transition-opacity"
+          className="ml-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full border transition-all duration-150 hover:brightness-125"
+          style={{
+            backgroundColor: `${color}25`,
+            borderColor: `${color}60`,
+            color: color,
+          }}
         >
-          x
+          <X size={9} strokeWidth={3} />
         </button>
       )}
     </span>
