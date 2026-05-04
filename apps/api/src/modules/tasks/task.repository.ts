@@ -62,7 +62,7 @@ export const findTaskById = async (taskId: string) => {
   })
 }
 
-export const editTask = async (taskId: string, data: { title?: string, description?: string, status?: TaskStatus, priority?: TaskPriority, dueDate?: Date }) => {
+export const editTask = async (taskId: string, data: { title?: string, description?: string, status?: TaskStatus, priority?: TaskPriority, dueDate?: Date | null, assigneeId?: string | null }) => {
   return prisma.task.update({
     where: {
       id: taskId 
@@ -72,7 +72,8 @@ export const editTask = async (taskId: string, data: { title?: string, descripti
       description: data.description,
       status: data.status,
       priority: data.priority,
-      dueDate: data.dueDate
+      dueDate: data.dueDate,
+      assigneeId: data.assigneeId,
     }
   })
 }
