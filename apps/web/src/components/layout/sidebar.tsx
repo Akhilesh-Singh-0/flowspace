@@ -16,32 +16,35 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="flex w-60 flex-col border-r border-border bg-card">
-      <div className="flex h-14 items-center border-b border-border px-5">
-        <span className="text-[#1D9E75] font-bold text-base tracking-tight">
+    <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-card">
+      <div className="flex h-[52px] items-center px-4 border-b border-border">
+        <span className="text-primary font-semibold text-sm tracking-tight">
           FlowSpace
         </span>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {nav.map(({ label, href, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-              pathname.startsWith(href)
-                ? 'bg-muted text-foreground font-medium'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            )}
-          >
-            <Icon size={15} />
-            {label}
-          </Link>
-        ))}
+      <nav className="flex-1 px-2 py-3 space-y-0.5">
+        {nav.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors',
+                isActive
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
+            >
+              <Icon size={14} strokeWidth={1.75} />
+              {label}
+            </Link>
+          )
+        })}
       </nav>
 
-      <div className="border-t border-border px-4 py-4">
+      <div className="border-t border-border px-3 py-3">
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
     </aside>

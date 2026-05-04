@@ -12,10 +12,10 @@ export function ProjectCard({
 }) {
   return (
     <Link href={`/workspaces/${workspaceId}/projects/${project.id}`}>
-      <div className="group flex items-center justify-between rounded-lg border border-zinc-700/50 bg-zinc-800/60 px-5 py-4 transition-colors hover:border-zinc-600 hover:bg-zinc-800 cursor-pointer">
-        <div className="flex items-center gap-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-zinc-700">
-            <FolderKanban size={16} className="text-zinc-300" />
+      <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-150 hover:bg-accent hover:border-border/80 cursor-pointer active:scale-[0.995]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary">
+            <FolderKanban size={14} className="text-muted-foreground" />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">{project.title}</p>

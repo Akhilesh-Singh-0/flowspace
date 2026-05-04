@@ -1,20 +1,19 @@
-import { Sidebar } from "@/components/layout/sidebar";
-import { Navbar } from "@/components/layout/navbar";
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { Sidebar } from '@/components/layout/sidebar'
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Navbar />
-        <main className="flex-1 overflow-y-auto bg-background p-6">
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-4xl px-8 py-8">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
-  );
+  )
 }
