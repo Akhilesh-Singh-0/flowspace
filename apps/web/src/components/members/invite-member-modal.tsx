@@ -1,5 +1,4 @@
 'use client'
-
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 
 const schema = z.object({
-  targetUserId: z.string().min(1, 'User ID is required'),
+  targetUserId: z.string().email('Must be a valid email'),
   role: z.enum(['ADMIN', 'MEMBER', 'VIEWER']),
 })
 
@@ -57,13 +56,13 @@ export function InviteMemberModal({
         <DialogHeader>
           <DialogTitle className="text-foreground">Invite member</DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div className="space-y-1.5">
-            <Label htmlFor="targetUserId">User ID</Label>
+            <Label htmlFor="targetUserId">Email address</Label>
             <Input
               id="targetUserId"
-              placeholder="Enter the user's Clerk ID"
+              type="email"
+              placeholder="colleague@company.com"
               className="bg-secondary border-border"
               {...register('targetUserId')}
             />

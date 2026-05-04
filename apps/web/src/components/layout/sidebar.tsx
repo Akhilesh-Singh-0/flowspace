@@ -1,5 +1,4 @@
 'use client'
-
 import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
@@ -16,20 +15,19 @@ export function Sidebar() {
       label: 'Workspaces',
       href: '/workspaces',
       icon: LayoutDashboard,
-      disabled: false,
     },
-    {
-      label: 'Projects',
-      href: workspaceId ? `/workspaces/${workspaceId}` : null,
-      icon: FolderKanban,
-      disabled: !workspaceId,
-    },
-    {
-      label: 'Members',
-      href: workspaceId ? `/workspaces/${workspaceId}/members` : null,
-      icon: Users,
-      disabled: !workspaceId,
-    },
+    ...(workspaceId ? [
+      {
+        label: 'Projects',
+        href: `/workspaces/${workspaceId}`,
+        icon: FolderKanban,
+      },
+      {
+        label: 'Members',
+        href: `/workspaces/${workspaceId}/members`,
+        icon: Users,
+      },
+    ] : []),
   ]
 
   return (
@@ -39,30 +37,13 @@ export function Sidebar() {
           FlowSpace
         </span>
       </div>
-
       <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {nav.map(({ label, href, icon: Icon, disabled }) => {
-          const isActive = href
-            ? pathname === href || pathname.startsWith(`${href}/`)
-            : false
-
-          if (disabled) {
-            return (
-              <div
-                key={label}
-                title="Select a workspace first"
-                className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-muted-foreground/40 cursor-not-allowed select-none"
-              >
-                <Icon size={14} strokeWidth={1.75} />
-                {label}
-              </div>
-            )
-          }
-
+        {nav.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
               key={label}
-              href={href!}
+              href={href}
               className={cn(
                 'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors',
                 isActive
@@ -75,14 +56,7 @@ export function Sidebar() {
             </Link>
           )
         })}
-
-        {!workspaceId && (
-          <p className="px-2.5 pt-2 text-[11px] text-muted-foreground/50">
-            Select a workspace to access Projects and Members
-          </p>
-        )}
       </nav>
-
       <div className="border-t border-border px-3 py-3">
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
