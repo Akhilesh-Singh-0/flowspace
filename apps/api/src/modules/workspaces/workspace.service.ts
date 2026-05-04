@@ -8,7 +8,7 @@ import {
   deleteWorkspaceMember,
   countWorkspaceOwners
 } from "./workspace.repository";
-import { findUserByClerkId, findUserById } from "@/lib/user.repository"
+import { findUserByClerkId, findUserByEmail } from "@/lib/user.repository"
 import { AppError } from "@/middleware/errorHandler";
 import { Prisma } from "@prisma/client";
 
@@ -38,74 +38,78 @@ export const createWorkspace = async (
   }
 };
 
-export const getUserWorkspaces =async (userId: string) => {
-    const dbUser = await findUserByClerkId(userId)
-    
-    if(!dbUser) throw new AppError("User not found", 404)
+export const getUserWorkspaces = async (userId: string) => {
+  const dbUser = await findUserByClerkId(userId)
+  
+  if(!dbUser) throw new AppError("User not found", 404)
 
-    const workspaces = await findWorkspacesByUserId(dbUser.id);
+  const workspaces = await findWorkspacesByUserId(dbUser.id);
 
-    return workspaces.map((item: typeof workspaces[0]) => ({
+  return workspaces.map((item: typeof workspaces[0]) => ({
     id: item.workspace.id,       
     name: item.workspace.name,
     slug: item.workspace.slug,
     createdAt: item.workspace.createdAt,
     role: item.role
-  })
-  )
+  }))
 }
 
-export const addWorkspaceMember = async (requesterId: string, workspaceId: string, targetUserId: string, role: WorkspaceRole) => {
-
+export const addWorkspaceMember = async (
+  requesterId: string,
+  workspaceId: string,
+  targetEmail: string,
+  role: WorkspaceRole
+) => {
   const dbUser = await findUserByClerkId(requesterId)
-  
   if(!dbUser) throw new AppError("User not found", 404)
-  const requesterMember = await findWorkspaceMember(dbUser.id, workspaceId)
 
+  const requesterMember = await findWorkspaceMember(dbUser.id, workspaceId)
   if(!requesterMember || !['OWNER', 'ADMIN'].includes(requesterMember.role)){
     throw new AppError("Forbidden", 403)
-  } 
+  }
 
-  const userExist = await findUserById(targetUserId)
+  const userExist = await findUserByEmail(targetEmail)
   if(!userExist){
     throw new AppError("User does not exist", 404)
   }
 
-  const alreadyMember = await findWorkspaceMember(targetUserId, workspaceId)
+  const resolvedUserId = userExist.id
+
+  const alreadyMember = await findWorkspaceMember(resolvedUserId, workspaceId)
   if(alreadyMember){
     throw new AppError("User is already a member", 409)
   }
 
-  return createWorkspaceMember(targetUserId, workspaceId, role)
+  return createWorkspaceMember(resolvedUserId, workspaceId, role)
 }
 
-export const getWorkspaceMembers = async (requesterId: string, workspaceId:  string) => {
+export const getWorkspaceMembers = async (requesterId: string, workspaceId: string) => {
   const dbUser = await findUserByClerkId(requesterId)
-  
   if(!dbUser) throw new AppError("User not found", 404)
-  const requesterMember = await findWorkspaceMember(dbUser.id, workspaceId)
 
+  const requesterMember = await findWorkspaceMember(dbUser.id, workspaceId)
   if(!requesterMember){
     throw new AppError("You are not a member of this workspace", 403)
   }
 
-  const workspaceMembers = await findWorkspaceMembers(workspaceId);
-
-  return workspaceMembers;
+  return findWorkspaceMembers(workspaceId);
 }
 
 const ensureNotLastOwner = async (workspaceId: string) => {
   const ownerCount = await countWorkspaceOwners(workspaceId)
-
   if (ownerCount === 1) {
     throw new AppError("Cannot remove the last owner", 400)
   }
 }
 
-export const removeWorkspaceMember = async (requesterId: string, targetUserId: string, workspaceId: string) => {
-  
+export const removeWorkspaceMember = async (
+  requesterId: string,
+  targetUserId: string,
+  workspaceId: string
+) => {
   const dbUser = await findUserByClerkId(requesterId)
   if(!dbUser) throw new AppError("User not found", 404)
+
   const requester = await findWorkspaceMember(dbUser.id, workspaceId)
   const target = await findWorkspaceMember(targetUserId, workspaceId)
 
@@ -124,7 +128,6 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
     }
 
     await ensureNotLastOwner(workspaceId);
-  
     await deleteWorkspaceMember(workspaceId, targetUserId)
     return 
   }
@@ -137,7 +140,6 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
     if(target.role === "OWNER" || target.role === "ADMIN"){
       throw new AppError("Admin cannot remove owner or admin", 403)
     }
-  
     await deleteWorkspaceMember(workspaceId, targetUserId)
     return
   }
@@ -146,7 +148,6 @@ export const removeWorkspaceMember = async (requesterId: string, targetUserId: s
     if(target.role === "OWNER"){
       await ensureNotLastOwner(workspaceId)
     }
-
     await deleteWorkspaceMember(workspaceId, targetUserId)
     return;
   }
