@@ -19,6 +19,26 @@ async function createProject(
   return res.data.data
 }
 
+async function updateProject(
+  token: string,
+  workspaceId: string,
+  projectId: string,
+  data: { title?: string; description?: string }
+): Promise<Project> {
+  setAuthToken(token)
+  const res = await api.patch(`/workspaces/${workspaceId}/projects/${projectId}`, data)
+  return res.data.data
+}
+
+async function deleteProject(
+  token: string,
+  workspaceId: string,
+  projectId: string
+): Promise<void> {
+  setAuthToken(token)
+  await api.delete(`/workspaces/${workspaceId}/projects/${projectId}`)
+}
+
 export function useProjects(workspaceId: string) {
   const { getToken } = useAuth()
 
@@ -43,6 +63,49 @@ export function useCreateProject(workspaceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', workspaceId] })
+    },
+  })
+}
+
+export function useUpdateProject(workspaceId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      data,
+    }: {
+      projectId: string
+      data: { title?: string; description?: string }
+    }) => {
+      const token = await getToken()
+      return updateProject(token!, workspaceId, projectId, data)
+    },
+    onSuccess: (updatedProject) => {
+      queryClient.setQueryData(
+        ['projects', workspaceId],
+        (old: Project[] | undefined) =>
+          old?.map((p) => (p.id === updatedProject.id ? updatedProject : p)) ?? []
+      )
+    },
+  })
+}
+
+export function useDeleteProject(workspaceId: string) {
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (projectId: string) => {
+      const token = await getToken()
+      return deleteProject(token!, workspaceId, projectId)
+    },
+    onSuccess: (_, projectId) => {
+      queryClient.setQueryData(
+        ['projects', workspaceId],
+        (old: Project[] | undefined) => old?.filter((p) => p.id !== projectId) ?? []
+      )
     },
   })
 }
