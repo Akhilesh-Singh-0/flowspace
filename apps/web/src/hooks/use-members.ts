@@ -1,10 +1,10 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { toast } from 'sonner'
 import api, { setAuthToken } from '@/lib/api'
-import type { WorkspaceMember } from '@/types'
+import type { WorkspaceMember, WorkspaceRole } from '@/types'
 
 async function fetchMembers(workspaceId: string, token: string) {
   setAuthToken(token)
@@ -25,7 +25,6 @@ async function removeMember(workspaceId: string, userId: string, token: string) 
 
 export function useMembers(workspaceId: string) {
   const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['members', workspaceId],
     queryFn: async () => {
@@ -36,10 +35,33 @@ export function useMembers(workspaceId: string) {
   })
 }
 
+export function useCurrentRole(workspaceId: string): WorkspaceRole | null {
+  const { data: members } = useMembers(workspaceId)
+  const { user } = useUser()
+
+  if (!members || !user) return null
+
+  const currentEmail = user.primaryEmailAddress?.emailAddress ?? ''
+  const currentName = (user.fullName ?? '').toLowerCase().replace(/\s/g, '')
+  const firstName = (user.firstName ?? '').toLowerCase()
+
+  const match = members.find((m) => {
+    const dbEmail = (m.user.email ?? '').toLowerCase()
+    const dbName = (m.user.name ?? '').toLowerCase().replace(/\s/g, '')
+    return (
+      (dbEmail && dbEmail === currentEmail.toLowerCase()) ||
+      dbName === currentName ||
+      currentName.includes(dbName) ||
+      dbName.includes(firstName)
+    )
+  })
+
+  return match?.role ?? null
+}
+
 export function useInviteMember(workspaceId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ targetUserId, role }: { targetUserId: string; role: string }) => {
       const token = await getToken()
@@ -58,7 +80,6 @@ export function useInviteMember(workspaceId: string) {
 export function useRemoveMember(workspaceId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (userId: string) => {
       const token = await getToken()

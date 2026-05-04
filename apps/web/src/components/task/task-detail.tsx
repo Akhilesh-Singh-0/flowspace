@@ -39,12 +39,14 @@ export function TaskDetail({
   task,
   projectId,
   workspaceId,
+  canDelete = true,
   onClose,
   onDeleted,
 }: {
   task: Task | null
   projectId: string
   workspaceId: string
+  canDelete?: boolean
   onClose: () => void
   onDeleted?: () => void
 }) {
@@ -98,7 +100,6 @@ export function TaskDetail({
 
   function handleAssigneeChange(assigneeId: string) {
     if (!task) return
-    console.log('assignee change:', assigneeId, 'task:', task.id)
     updateTask({ taskId: task.id, data: { assigneeId: assigneeId || null } })
   }
 
@@ -133,7 +134,6 @@ export function TaskDetail({
       >
         {task && (
           <>
-
             <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-border shrink-0 bg-card">
               {editingTitle ? (
                 <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -180,13 +180,15 @@ export function TaskDetail({
 
               {!editingTitle && (
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary text-foreground/70 hover:text-rose-400 hover:bg-rose-400/10 hover:border-rose-400/30 transition-all duration-150"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary text-foreground/70 hover:text-rose-400 hover:bg-rose-400/10 hover:border-rose-400/30 transition-all duration-150"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   <button
                     onClick={onClose}
                     className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-secondary text-foreground/70 hover:text-foreground hover:bg-accent transition-all duration-150"
@@ -198,7 +200,6 @@ export function TaskDetail({
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <SectionLabel>Status</SectionLabel>
@@ -266,9 +267,7 @@ export function TaskDetail({
               {task.description && (
                 <div className="space-y-1.5">
                   <SectionLabel>Description</SectionLabel>
-                  <p className="text-sm text-foreground/80 leading-relaxed">
-                    {task.description}
-                  </p>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{task.description}</p>
                 </div>
               )}
 

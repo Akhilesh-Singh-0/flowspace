@@ -17,22 +17,24 @@ function MemberItem({
   member,
   workspaceId,
   currentDbUserId,
-  isOwner,
+  canManageMembers,
 }: {
   member: WorkspaceMember
   workspaceId: string
   currentDbUserId: string | null
-  isOwner: boolean
+  canManageMembers: boolean
 }) {
   const { mutate: removeMember, isPending } = useRemoveMember(workspaceId)
   const role = roleConfig[member.role]
+
   const initials = member.user.name
     ? member.user.name.slice(0, 2).toUpperCase()
     : member.user.email
     ? member.user.email.slice(0, 2).toUpperCase()
     : '??'
+
   const isSelf = currentDbUserId === member.user.id
-  const canRemove = isOwner && !isSelf && member.role !== 'OWNER'
+  const canRemove = canManageMembers && !isSelf && member.role !== 'OWNER'
 
   return (
     <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]">
@@ -71,31 +73,31 @@ function MemberItem({
   )
 }
 
-export function MemberList({ workspaceId }: { workspaceId: string }) {
+export function MemberList({
+  workspaceId,
+  canManageMembers,
+}: {
+  workspaceId: string
+  canManageMembers: boolean
+}) {
   const { data: members, isLoading, isError } = useMembers(workspaceId)
   const { user } = useUser()
 
-  const currentName = user?.fullName
-  const currentEmail = user?.primaryEmailAddress?.emailAddress
+  const currentEmail = user?.primaryEmailAddress?.emailAddress ?? ''
+  const currentName = (user?.fullName ?? '').toLowerCase().replace(/\s/g, '')
+  const firstName = (user?.firstName ?? '').toLowerCase()
 
   const currentDbUserId =
-  members?.find((m) => {
-    if (!m.user.name) return false
-    const dbName = m.user.name.toLowerCase().replace(/\s/g, '')
-    const clerkFull = (currentName ?? '').toLowerCase().replace(/\s/g, '')
-    const clerkFirst = (user?.firstName ?? '').toLowerCase()
-    const clerkEmail = (currentEmail ?? '').toLowerCase()
-
-    return (
-      (m.user.email && m.user.email === clerkEmail) ||
-      dbName === clerkFull ||
-      clerkFull.includes(dbName) ||
-      dbName.includes(clerkFirst)
-    )
-  })?.user.id ?? null
-
-  const currentMember = members?.find((m) => m.user.id === currentDbUserId)
-  const isOwner = currentMember?.role === 'OWNER'
+    members?.find((m) => {
+      const dbEmail = (m.user.email ?? '').toLowerCase()
+      const dbName = (m.user.name ?? '').toLowerCase().replace(/\s/g, '')
+      return (
+        (dbEmail && dbEmail === currentEmail.toLowerCase()) ||
+        dbName === currentName ||
+        currentName.includes(dbName) ||
+        dbName.includes(firstName)
+      )
+    })?.user.id ?? null
 
   if (isLoading) {
     return (
@@ -128,7 +130,7 @@ export function MemberList({ workspaceId }: { workspaceId: string }) {
           member={member}
           workspaceId={workspaceId}
           currentDbUserId={currentDbUserId}
-          isOwner={isOwner ?? false}
+          canManageMembers={canManageMembers}
         />
       ))}
     </div>

@@ -30,9 +30,11 @@ function useTimeAgo(dateString: string) {
 export function ProjectCard({
   project,
   workspaceId,
+  canManage,
 }: {
   project: Project
   workspaceId: string
+  canManage: boolean
 }) {
   const timeAgo = useTimeAgo(project.createdAt)
   const [editing, setEditing] = useState(false)
@@ -136,23 +138,25 @@ export function ProjectCard({
               </span>
             )}
 
-            <div className="flex items-center gap-0.5 rounded-md border border-border bg-secondary px-0.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-              <button
-                onClick={handleEditStart}
-                title="Edit project"
-                className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150"
-              >
-                <Pencil className="w-3 h-3" />
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                title="Delete project"
-                className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
+            {canManage && (
+              <div className="flex items-center gap-0.5 rounded-md border border-border bg-secondary px-0.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <button
+                  onClick={handleEditStart}
+                  title="Edit project"
+                  className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  title="Delete project"
+                  className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
