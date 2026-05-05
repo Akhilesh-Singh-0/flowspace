@@ -78,7 +78,7 @@ export default function ProjectPage() {
           description="All tasks in this project."
           action={
             <div className="flex items-center gap-2">
-              {/* View toggle */}
+              
               <div className="flex items-center rounded-md border border-border bg-secondary p-0.5">
                 <button
                   onClick={() => switchView('list')}
@@ -106,7 +106,7 @@ export default function ProjectPage() {
                 </button>
               </div>
 
-              {canCreateTask && (
+              {canCreateTask && hasTasks && (
                 <Button
                   onClick={() => setOpen(true)}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
@@ -119,7 +119,6 @@ export default function ProjectPage() {
           }
         />
 
-        {/* Filter bar */}
         {hasTasks && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <div className="relative flex-1 min-w-[180px]">
@@ -170,7 +169,6 @@ export default function ProjectPage() {
           </div>
         )}
 
-        {/* Loading */}
         {isLoading && (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-12 w-full rounded-lg" />
@@ -179,12 +177,10 @@ export default function ProjectPage() {
           </div>
         )}
 
-        {/* Error */}
         {isError && (
           <p className="text-sm text-destructive">Failed to load tasks. Please try again.</p>
         )}
 
-        {/* Empty — no tasks */}
         {!isLoading && !isError && tasks?.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
             <p className="text-sm font-medium text-foreground">No tasks yet</p>
@@ -203,7 +199,6 @@ export default function ProjectPage() {
           </div>
         )}
 
-        {/* Empty — filters */}
         {hasTasks && filteredTasks.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
             <p className="text-sm font-medium text-foreground">No tasks match your filters</p>
@@ -216,7 +211,6 @@ export default function ProjectPage() {
           </div>
         )}
 
-        {/* List view */}
         {hasTasks && filteredTasks.length > 0 && view === 'list' && (
           <div className="flex flex-col gap-2">
             {filteredTasks.map((task) => (

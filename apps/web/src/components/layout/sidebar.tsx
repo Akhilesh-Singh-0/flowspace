@@ -46,12 +46,11 @@ export function Sidebar() {
         borderRight: '1px solid hsl(243 75% 65% / 0.12)',
       }}
     >
-      {/* top glow */}
+
       <div className="pointer-events-none absolute -top-10 -left-10 w-48 h-48 rounded-full bg-primary/20 blur-3xl" />
-      {/* bottom glow */}
+
       <div className="pointer-events-none absolute -bottom-10 -right-10 w-40 h-40 rounded-full bg-primary/10 blur-3xl" />
 
-      {/* header */}
       <div className="relative flex h-[52px] items-center gap-2.5 px-4"
         style={{ borderBottom: '1px solid hsl(243 75% 65% / 0.12)' }}
       >
@@ -61,7 +60,6 @@ export function Sidebar() {
         </span>
       </div>
 
-      {/* nav */}
       <nav className="relative flex-1 px-2 py-3 space-y-0.5">
         {topNav.map(({ label, href, icon: Icon, isActive }) => (
           <Link
@@ -105,7 +103,6 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* footer */}
       <div
         className="relative px-3 py-3 flex items-center gap-2.5"
         style={{ borderTop: '1px solid hsl(243 75% 65% / 0.12)' }}
