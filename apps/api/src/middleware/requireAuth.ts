@@ -13,11 +13,6 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    
-    if (process.env.NODE_ENV === "development") {
-      req.user = { userId: "test-user-1" };
-      return next();
-    }
 
     const authHeader = req.headers.authorization;
 
@@ -35,7 +30,7 @@ export const authMiddleware = async (
     const token = authHeader.split(" ")[1];
 
     const verified = await verifyToken(token, {
-      secretKey: process.env.CLERK_SECRET_KEY!,
+      secretKey: process.env.CLERK_SECRET_KEY,
     });
 
     req.user = { userId: verified.sub };
