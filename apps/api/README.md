@@ -1,24 +1,50 @@
 <div align="center">
 
-<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-  <rect width="60" height="60" rx="12" fill="#1D9E75"/>
-  <rect x="12" y="18" width="16" height="4" rx="2" fill="white"/>
-  <rect x="12" y="26" width="24" height="4" rx="2" fill="white"/>
-  <rect x="12" y="34" width="20" height="4" rx="2" fill="white"/>
-  <circle cx="44" cy="38" r="8" fill="#0F6E56"/>
-  <rect x="41" y="36" width="6" height="2" rx="1" fill="white"/>
-  <rect x="43" y="34" width="2" height="6" rx="1" fill="white"/>
+<svg width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#818cf8"/>
+      <stop offset="100%" stopColor="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#6366f1"/>
+      <stop offset="100%" stopColor="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#4f46e5"/>
+      <stop offset="100%" stopColor="#3730a3"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="4" width="20" height="7" rx="2.5" fill="url(#g1)" opacity="0.95"/>
+  <rect x="3" y="13" width="20" height="7" rx="2.5" fill="url(#g2)" opacity="0.90"/>
+  <rect x="8" y="22" width="18" height="6" rx="2.5" fill="url(#g3)" opacity="0.85"/>
+  <circle cx="26" cy="7.5" r="1.5" fill="#a5b4fc" opacity="0.9"/>
+  <circle cx="23" cy="16.5" r="1.5" fill="#818cf8" opacity="0.9"/>
+  <circle cx="26" cy="25" r="1.5" fill="#6366f1" opacity="0.9"/>
+  <line x1="26" y1="9" x2="23" y2="15" stroke="#818cf8" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+  <line x1="23" y1="18" x2="26" y2="23.5" stroke="#6366f1" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
 </svg>
 
-# FlowSpace
+<h1>FlowSpace</h1>
 
-### project management API — built from scratch
+<p>project management API — built from scratch</p>
 
-> A backend system built to understand how real-time, multi-tenant, role-based platforms work at the engineering level.
+<p><em>A backend system built to understand how real-time, multi-tenant, role-based platforms work at the engineering level.</em></p>
 
-![Status](https://img.shields.io/badge/status-building%20in%20public-1D9E75?style=flat-square)
-![Stack](https://img.shields.io/badge/stack-Node.js%20%7C%20TypeScript%20%7C%20PostgreSQL-3C3489?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+<p>
+  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis"/>
+  <img src="https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma"/>
+  <img src="https://img.shields.io/badge/Clerk-6C47FF?style=flat-square&logo=clerk&logoColor=white" alt="Clerk"/>
+</p>
+
+<p>
+  <a href="https://your-live-url.com"><strong>Live Demo</strong></a> ·
+  <a href="../web/README.md"><strong>Frontend Repo</strong></a> ·
+  <a href="https://twitter.com/singh_akhil2272"><strong>Building in Public</strong></a>
+</p>
 
 </div>
 

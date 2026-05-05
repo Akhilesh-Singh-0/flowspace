@@ -1,22 +1,45 @@
 <div align="center">
 
-<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-  <rect width="60" height="60" rx="12" fill="#1D9E75"/>
-  <rect x="12" y="18" width="16" height="4" rx="2" fill="white"/>
-  <rect x="12" y="26" width="24" height="4" rx="2" fill="white"/>
-  <rect x="12" y="34" width="20" height="4" rx="2" fill="white"/>
-  <circle cx="44" cy="38" r="8" fill="#0F6E56"/>
-  <rect x="41" y="36" width="6" height="2" rx="1" fill="white"/>
-  <rect x="43" y="34" width="2" height="6" rx="1" fill="white"/>
+<svg width="64" height="64" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#818cf8"/>
+      <stop offset="100%" stopColor="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#6366f1"/>
+      <stop offset="100%" stopColor="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#4f46e5"/>
+      <stop offset="100%" stopColor="#3730a3"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="4" width="20" height="7" rx="2.5" fill="url(#g1)" opacity="0.95"/>
+  <rect x="3" y="13" width="20" height="7" rx="2.5" fill="url(#g2)" opacity="0.90"/>
+  <rect x="8" y="22" width="18" height="6" rx="2.5" fill="url(#g3)" opacity="0.85"/>
+  <circle cx="26" cy="7.5" r="1.5" fill="#a5b4fc" opacity="0.9"/>
+  <circle cx="23" cy="16.5" r="1.5" fill="#818cf8" opacity="0.9"/>
+  <circle cx="26" cy="25" r="1.5" fill="#6366f1" opacity="0.9"/>
+  <line x1="26" y1="9" x2="23" y2="15" stroke="#818cf8" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+  <line x1="23" y1="18" x2="26" y2="23.5" stroke="#6366f1" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
 </svg>
 
-# FlowSpace
+<h1>FlowSpace</h1>
 
-### A project management backend — workspaces, roles, real-time updates, background jobs.
+<p>project management platform — built from scratch</p>
 
-![Status](https://img.shields.io/badge/status-building%20in%20public-1D9E75?style=flat-square)
-![Stack](https://img.shields.io/badge/stack-Node.js%20%7C%20TypeScript%20%7C%20PostgreSQL-3C3489?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+<p><em>A full-stack project management platform built to understand how real-time, multi-tenant, role-based systems work at the engineering level.</em></p>
+
+<p>
+  <img src="https://img.shields.io/badge/Next.js_14-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white" alt="Redis"/>
+  <img src="https://img.shields.io/badge/Clerk-6C47FF?style=flat-square&logo=clerk&logoColor=white" alt="Clerk"/>
+</p>
+
 
 </div>
 
@@ -36,49 +59,53 @@ FlowSpace is a **project management platform** — workspaces, roles, projects, 
 
 ## Monorepo Structure
 
-    flowspace/
-    ├── apps/
-    │   ├── api/          ← Node.js + Express backend
-    │   └── web/          ← Frontend (coming soon)
-    ├── packages/         ← Shared packages
-    ├── docker-compose.yml
-    └── turbo.json
+```
+flowspace/
+├── apps/
+│   ├── api/          ← Node.js + Express backend
+│   └── web/          ← Next.js 14 frontend
+├── packages/         ← Shared packages
+├── docker-compose.yml
+└── turbo.json
+```
 
 ---
 
 ## Architecture
 
-    ┌─────────────────────────────────────────────────────────┐
-    │                        Client                           │
-    └────────────────────────┬────────────────────────────────┘
-                             │ HTTP / WebSocket
-    ┌────────────────────────▼────────────────────────────────┐
-    │                    API Server                           │
-    │                                                         │
-    │  Route Layer        → express router, input validation  │
-    │  Controller Layer   → request/response handling         │
-    │  Service Layer      → business logic + RBAC checks      │
-    │  Repository Layer   → Prisma ORM + PostgreSQL           │
-    └──────────┬──────────────────────┬───────────────────────┘
-               │                      │
-    ┌──────────▼──────┐    ┌──────────▼──────────────────────┐
-    │   PostgreSQL    │    │         Redis                   │
-    │                 │    │                                 │
-    │  Users          │    │  Pub/Sub (real-time events)     │
-    │  Workspaces     │    │  BullMQ queues (notifications)  │
-    │  Members        │    │                                 │
-    │  Projects       │    └─────────────────────────────────┘
-    │  Tasks          │
-    │  Comments       │
-    │  Labels         │
-    └─────────────────┘
-            ▲
-            │ JWT verification
-    ┌───────┴─────────┐
-    │      Clerk      │
-    │   (Auth + User  │
-    │    webhook)     │
-    └─────────────────┘
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Next.js Frontend                    │
+│          TanStack Query · Clerk · WebSocket             │
+└────────────────────────┬────────────────────────────────┘
+                         │ HTTP / WebSocket
+┌────────────────────────▼────────────────────────────────┐
+│                    Express API Server                   │
+│                                                         │
+│  Route Layer        → input validation (Zod)            │
+│  Controller Layer   → request/response handling         │
+│  Service Layer      → business logic + RBAC             │
+│  Repository Layer   → Prisma ORM + PostgreSQL           │
+└──────────┬──────────────────────┬───────────────────────┘
+           │                      │
+┌──────────▼──────┐    ┌──────────▼──────────────────────┐
+│   PostgreSQL    │    │            Redis                 │
+│                 │    │                                  │
+│  Users          │    │  Pub/Sub (real-time events)      │
+│  Workspaces     │    │  BullMQ queues (notifications)   │
+│  Members        │    │                                  │
+│  Projects       │    └──────────────────────────────────┘
+│  Tasks          │
+│  Comments       │
+│  Labels         │
+└─────────────────┘
+        ▲
+        │ JWT verification
+┌───────┴─────────┐
+│      Clerk      │
+│  Auth + Webhook │
+└─────────────────┘
+```
 
 ---
 
@@ -86,15 +113,15 @@ FlowSpace is a **project management platform** — workspaces, roles, projects, 
 
 | Layer | Technology |
 |---|---|
-| Runtime | Node.js |
-| Language | TypeScript |
-| Framework | Express |
-| Database | PostgreSQL |
-| ORM | Prisma |
+| Frontend | Next.js 14 (App Router) |
+| Language | TypeScript (strict, both apps) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Backend | Node.js + Express |
+| Database | PostgreSQL + Prisma ORM |
 | Auth | Clerk |
 | Cache / Pub-Sub | Redis |
 | Job Queue | BullMQ |
-| Real-time | WebSockets |
+| Real-time | Native WebSockets |
 | Monorepo | Turborepo |
 | Local Infra | Docker |
 | Validation | Zod |
@@ -125,16 +152,27 @@ npm install
 
 ```bash
 cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-Fill in your `.env`:
-
+**`apps/api/.env`**
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/flowspace"
 CLERK_SECRET_KEY="sk_test_..."
 CLERK_WEBHOOK_SECRET="whsec_..."
 REDIS_URL="redis://localhost:6379"
 PORT=3000
+```
+
+**`apps/web/.env.local`**
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxx
+CLERK_SECRET_KEY=sk_test_xxxx
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/workspaces
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/workspaces
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
 ### 4. Start local infrastructure
@@ -151,23 +189,50 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-### 6. Start the dev server
+### 6. Start both apps
 
 ```bash
 cd ../..
 npm run dev
 ```
 
-API runs at `http://localhost:3000`
-Health check at `http://localhost:3000/health`
-API Documentation at `http://localhost:3000/api-docs`
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3001 |
+| Backend API | http://localhost:3000 |
+| API Health | http://localhost:3000/health |
+| API Docs | http://localhost:3000/api-docs |
+
+---
+
+## Deployed
+
+| | URL |
+|---|---|
+| Frontend | [your-frontend-url.com](https://your-frontend-url.com) |
+| Backend API | [your-backend-url.com](https://your-backend-url.com) |
+| API Docs | [your-backend-url.com/api-docs](https://your-backend-url.com/api-docs) |
 
 ---
 
 ## Documentation
 
-- [Backend API Documentation](./apps/api/README.md)
-- Frontend Documentation — coming soon
+- [Frontend README](./apps/web/README.md) — UI architecture, design system, component structure
+- [Backend README](./apps/api/README.md) — API reference, RBAC, architecture decisions
+
+---
+
+## Why I Built This
+
+I wanted to know what it actually takes to build a collaborative tool that works the way the good ones do.
+
+Not the surface level — the parts underneath. What happens when two admins modify the same resource at the same time? How do you push a task update to every connected client without blocking the request that triggered it? What stops the last workspace owner from accidentally locking everyone out?
+
+These problems don't show up in tutorials. They show up when you try to build something real and start asking why things break.
+
+So I built FlowSpace to work through them. The backend uses Redis Pub/Sub to decouple real-time event emission from socket management. The frontend updates its cache directly on mutations instead of refetching. Workspace creation is a single atomic transaction so there's never an orphaned record without an owner.
+
+None of it is clever for the sake of it. It's just what the problem required.
 
 ---
 
@@ -175,7 +240,7 @@ API Documentation at `http://localhost:3000/api-docs`
 
 Follow the journey on Twitter/X: [@singh_akhil2272](https://twitter.com/singh_akhil2272)
 
-If you're hiring for backend roles or internships — DM is open.
+If you're hiring for frontend or backend roles — DM is open.
 
 ---
 
