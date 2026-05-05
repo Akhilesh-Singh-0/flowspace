@@ -1,5 +1,4 @@
 import { createApp } from '@/app'
-import { env } from '@/config/env'
 import { logger } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
@@ -8,8 +7,10 @@ import { notificationWorker } from '@/lib/notification.worker'
 
 const app = createApp()
 
-const server = app.listen(env.PORT, () => {
-  logger.info('FlowSpace API running', { port: env.PORT })
+const port = Number(process.env.PORT) || 3000;
+
+const server = app.listen(port, '0.0.0.0', () => {
+  logger.info('FlowSpace API running', { port })
   createWebSocketServer(server)
   logger.info('WebSocket server started')
 })
