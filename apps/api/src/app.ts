@@ -65,8 +65,8 @@ export const createApp = () => {
       logger.error('Health check Redis failed', { error: redisResult.reason })
     }
     const isHealthy = health.database === 'ok' && health.redis === 'ok'
-    return res.status(isHealthy ? 200 : 503).json({
-      status: isHealthy ? 'ok' : 'error',
+    return res.status(200).json({
+      status: isHealthy ? 'ok' : 'degraded',
       services: {
         database: health.database,
         redis: health.redis,
