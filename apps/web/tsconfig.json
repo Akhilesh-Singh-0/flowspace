@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -9,7 +13,10 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
-    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "../../node_modules/@types"
+    ],
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -20,11 +27,25 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@clerk/nextjs": ["../../node_modules/@clerk/nextjs"],
-      "@clerk/nextjs/*": ["../../node_modules/@clerk/nextjs/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@clerk/nextjs": [
+        "../../node_modules/@clerk/nextjs"
+      ],
+      "@clerk/nextjs/*": [
+        "../../node_modules/@clerk/nextjs/*"
+      ]
+    },
+    "target": "ES2017"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
