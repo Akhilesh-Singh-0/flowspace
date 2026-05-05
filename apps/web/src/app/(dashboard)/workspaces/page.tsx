@@ -90,7 +90,7 @@ export default function WorkspacesPage() {
             </div>
             <p className="text-sm font-medium text-foreground">No workspaces yet</p>
             <p className="mt-1 text-xs text-muted-foreground max-w-xs">
-              A workspace is your team's home. Create one to start organizing projects, tracking tasks, and collaborating in real time.
+            A workspace is your team&apos;s home. Create one to start organizing projects, tracking tasks, and collaborating in real time.
             </p>
             <Button
               onClick={() => setOpen(true)}
