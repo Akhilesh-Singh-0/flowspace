@@ -1,5 +1,6 @@
 import type { Task } from '@/types'
 import { cn } from '@/lib/utils'
+import { useMembers } from '@/hooks/use-members'
 
 const statusConfig = {
   BACKLOG:     { label: 'Backlog',     dot: 'bg-slate-400',   className: 'bg-slate-400/10 text-slate-400' },
@@ -16,7 +17,44 @@ const priorityConfig = {
   LOW:    { label: 'Low',    bar: 'bg-slate-400',  text: 'text-slate-400' },
 }
 
-export function TaskCard({ task, onClick }: { task: Task; onClick?: () => void }) {
+function AssigneeAvatar({ assigneeId, workspaceId }: { assigneeId: string; workspaceId: string }) {
+  const { data: members } = useMembers(workspaceId)
+  const member = members?.find((m) => m.user.id === assigneeId)
+  if (!member) return null
+
+  const name = member.user.name ?? member.user.email ?? ''
+  const initials = name.slice(0, 2).toUpperCase()
+
+  if (member.user.avatarUrl) {
+    return (
+      <img
+        src={member.user.avatarUrl}
+        alt={name}
+        title={name}
+        className="w-6 h-6 rounded-full border border-border object-cover shrink-0"
+      />
+    )
+  }
+
+  return (
+    <div
+      title={name}
+      className="w-6 h-6 rounded-full bg-primary/15 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0 border border-primary/20"
+    >
+      {initials}
+    </div>
+  )
+}
+
+export function TaskCard({
+  task,
+  onClick,
+  workspaceId,
+}: {
+  task: Task
+  onClick?: () => void
+  workspaceId?: string
+}) {
   const status = statusConfig[task.status]
   const priority = priorityConfig[task.priority]
 
@@ -25,7 +63,6 @@ export function TaskCard({ task, onClick }: { task: Task; onClick?: () => void }
       onClick={onClick}
       className="group relative flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)] cursor-pointer active:scale-[0.995] overflow-hidden"
     >
-      {/* Priority left border accent */}
       <span
         className={cn(
           'absolute left-0 top-0 h-full w-[3px] rounded-l-lg transition-opacity duration-200 opacity-40 group-hover:opacity-80',
@@ -33,14 +70,17 @@ export function TaskCard({ task, onClick }: { task: Task; onClick?: () => void }
         )}
       />
 
-      <div className="flex items-center gap-3 min-w-0 pl-1">
+      <div className="flex items-center gap-3 min-w-0 pl-1 flex-1">
         <span className={cn('shrink-0 text-xs font-medium w-14', priority.text)}>
           {priority.label}
         </span>
         <p className="text-sm text-foreground truncate">{task.title}</p>
       </div>
 
-      <div className="shrink-0 ml-4">
+      <div className="flex items-center gap-3 shrink-0 ml-4">
+        {task.assigneeId && workspaceId && (
+          <AssigneeAvatar assigneeId={task.assigneeId} workspaceId={workspaceId} />
+        )}
         <span className={cn(
           'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition-colors duration-200',
           status.className
