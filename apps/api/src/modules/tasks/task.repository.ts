@@ -7,6 +7,7 @@ type TaskInput = {
   status?: TaskStatus
   priority?: TaskPriority
   dueDate?: Date
+  assigneeId?: string | null
 }
 
 export const findProjectById = async (projectId: string) => {
@@ -29,23 +30,28 @@ export const createTask = async (projectId: string, workspaceId: string, creator
       description: data.description,
       status: data.status,
       priority: data.priority,
-      dueDate: data.dueDate
+      dueDate: data.dueDate,
+      assigneeId: data.assigneeId,
     }
   })
 }
 
 export const viewTask = async (projectId: string) => {
   return prisma.task.findMany({
-    where: {
-      projectId
-    },
+    where: { projectId },
     select: {
       id: true,
       title: true,
       description: true,
       status: true,
       priority: true,
-      dueDate: true
+      dueDate: true,
+      projectId: true,
+      workspaceId: true,
+      creatorId: true,
+      assigneeId: true,
+      createdAt: true,
+      updatedAt: true,
     }
   })
 }
@@ -53,9 +59,9 @@ export const viewTask = async (projectId: string) => {
 export const findTaskById = async (taskId: string) => {
   return prisma.task.findUnique({
     where: { id: taskId },
-    select: { 
-      id: true, 
-      workspaceId: true, 
+    select: {
+      id: true,
+      workspaceId: true,
       projectId: true,
       assigneeId: true,
     }
@@ -64,9 +70,7 @@ export const findTaskById = async (taskId: string) => {
 
 export const editTask = async (taskId: string, data: { title?: string, description?: string, status?: TaskStatus, priority?: TaskPriority, dueDate?: Date | null, assigneeId?: string | null }) => {
   return prisma.task.update({
-    where: {
-      id: taskId 
-    },
+    where: { id: taskId },
     data: {
       title: data.title,
       description: data.description,
@@ -80,8 +84,6 @@ export const editTask = async (taskId: string, data: { title?: string, descripti
 
 export const removeTask = async (taskId: string) => {
   return prisma.task.delete({
-    where: {
-      id: taskId
-    }
+    where: { id: taskId }
   })
 }
