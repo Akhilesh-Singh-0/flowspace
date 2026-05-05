@@ -23,6 +23,7 @@ async function createTask(
     description?: string
     status?: TaskStatus
     priority?: TaskPriority
+    assigneeId?: string | null
   }
 ): Promise<Task> {
   setAuthToken(token)
@@ -62,7 +63,6 @@ async function deleteTask(
 
 export function useTasks(workspaceId: string, projectId: string) {
   const { getToken } = useAuth()
-
   return useQuery({
     queryKey: ['tasks', workspaceId, projectId],
     queryFn: async () => {
@@ -76,13 +76,13 @@ export function useTasks(workspaceId: string, projectId: string) {
 export function useCreateTask(workspaceId: string, projectId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (data: {
       title: string
       description?: string
       status?: TaskStatus
       priority?: TaskPriority
+      assigneeId?: string | null
     }) => {
       const token = await getToken()
       return createTask(token!, workspaceId, projectId, data)
@@ -100,7 +100,6 @@ export function useCreateTask(workspaceId: string, projectId: string) {
 export function useUpdateTask(workspaceId: string, projectId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({
       taskId,
@@ -136,7 +135,6 @@ export function useUpdateTask(workspaceId: string, projectId: string) {
 export function useDeleteTask(workspaceId: string, projectId: string) {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (taskId: string) => {
       const token = await getToken()

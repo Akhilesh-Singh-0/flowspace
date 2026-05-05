@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCreateTask } from '@/hooks/use-tasks'
+import { useMembers } from '@/hooks/use-members'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +21,7 @@ const schema = z.object({
   description: z.string().max(1000).optional(),
   status: z.enum(['BACKLOG', 'IN_PROGRESS', 'IN_REVIEW', 'DONE', 'CANCELLED']),
   priority: z.enum(['URGENT', 'HIGH', 'MEDIUM', 'LOW']),
+  assigneeId: z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -36,6 +38,7 @@ export function CreateTaskModal({
   projectId: string
 }) {
   const { mutate, isPending } = useCreateTask(workspaceId, projectId)
+  const { data: members } = useMembers(workspaceId)
 
   const {
     register,
@@ -47,16 +50,23 @@ export function CreateTaskModal({
     defaultValues: {
       status: 'BACKLOG',
       priority: 'MEDIUM',
+      assigneeId: '',
     },
   })
 
   function onSubmit(data: FormData) {
-    mutate(data, {
-      onSuccess: () => {
-        reset()
-        onClose()
+    mutate(
+      {
+        ...data,
+        assigneeId: data.assigneeId || null,
       },
-    })
+      {
+        onSuccess: () => {
+          reset()
+          onClose()
+        },
+      }
+    )
   }
 
   return (
@@ -123,6 +133,25 @@ export function CreateTaskModal({
                 <option value="LOW">Low</option>
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="assigneeId">
+              Assignee{' '}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <select
+              id="assigneeId"
+              {...register('assigneeId')}
+              className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="">Unassigned</option>
+              {members?.map((m) => (
+                <option key={m.user.id} value={m.user.id}>
+                  {m.user.name ?? m.user.email}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
