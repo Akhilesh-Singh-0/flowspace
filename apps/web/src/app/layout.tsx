@@ -8,7 +8,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FlowSpace",
   description: "Production-grade project management UI",
-};
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+}
 
 export default function RootLayout({
   children,

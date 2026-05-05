@@ -1,0 +1,24 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="logoGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#3730a3" />
+    </linearGradient>
+  </defs>
+  <rect x="6" y="4" width="20" height="7" rx="2.5" fill="url(#logoGrad1)" opacity="0.95"/>
+  <rect x="3" y="13" width="20" height="7" rx="2.5" fill="url(#logoGrad2)" opacity="0.90"/>
+  <rect x="8" y="22" width="18" height="6" rx="2.5" fill="url(#logoGrad3)" opacity="0.85"/>
+  <circle cx="26" cy="7.5" r="1.5" fill="#a5b4fc" opacity="0.9"/>
+  <circle cx="23" cy="16.5" r="1.5" fill="#818cf8" opacity="0.9"/>
+  <circle cx="26" cy="25" r="1.5" fill="#6366f1" opacity="0.9"/>
+  <line x1="26" y1="9" x2="23" y2="15" stroke="#818cf8" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+  <line x1="23" y1="18" x2="26" y2="23.5" stroke="#6366f1" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+</svg>
