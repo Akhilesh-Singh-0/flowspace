@@ -10,6 +10,12 @@ const nextConfig = {
     externalDir: true,
   },
   outputFileTracingRoot: path.resolve(__dirname, "../../"),
+  outputFileTracingExcludes: {
+    "*": [
+      "../../node_modules/@swc/**",
+      "../../node_modules/esbuild/**",
+    ],
+  },
 };
 
 export default nextConfig;
