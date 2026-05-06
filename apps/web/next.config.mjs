@@ -9,6 +9,7 @@ const nextConfig = {
   experimental: {
     externalDir: true,
   },
+  outputFileTracingRoot: path.resolve(__dirname, "../../"),
 };
 
 export default nextConfig;
