@@ -32,7 +32,7 @@
 <p><em>A full-stack project management platform built to understand how real-time, multi-tenant, role-based systems work at the engineering level.</em></p>
 
 <p>
-  <img src="https://img.shields.io/badge/Next.js_14-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+  <img src="https://img.shields.io/badge/Next.js_15-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
   <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js"/>
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
@@ -63,7 +63,7 @@ FlowSpace is a **project management platform** — workspaces, roles, projects, 
 flowspace/
 ├── apps/
 │   ├── api/          ← Node.js + Express backend
-│   └── web/          ← Next.js 14 frontend
+│   └── web/          ← Next.js 15 frontend
 ├── packages/         ← Shared packages
 ├── docker-compose.yml
 └── turbo.json
@@ -113,7 +113,7 @@ flowspace/
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (App Router) |
+| Frontend | Next.js 15 (App Router) |
 | Language | TypeScript (strict, both apps) |
 | Styling | Tailwind CSS + shadcn/ui |
 | Backend | Node.js + Express |
@@ -209,9 +209,9 @@ npm run dev
 
 | | URL |
 |---|---|
-| Frontend | [your-frontend-url.com](https://your-frontend-url.com) |
-| Backend API | [your-backend-url.com](https://your-backend-url.com) |
-| API Docs | [your-backend-url.com/api-docs](https://your-backend-url.com/api-docs) |
+| Frontend | [flowspace-web-sigma.vercel.app](https://flowspace-web-sigma.vercel.app) |
+| Backend API | [flowspaceapi-production.up.railway.app](https://flowspaceapi-production.up.railway.app) |
+| API Docs | [flowspaceapi-production.up.railway.app/api-docs](https://flowspaceapi-production.up.railway.app/api-docs) |
 
 ---
 

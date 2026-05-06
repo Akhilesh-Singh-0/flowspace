@@ -32,7 +32,7 @@
 <p><em>A frontend application built to understand how real-time, role-based, multi-tenant UIs work in practice.</em></p>
 
 <p>
-  <img src="https://img.shields.io/badge/Next.js_14-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+  <img src="https://img.shields.io/badge/Next.js_15-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind"/>
   <img src="https://img.shields.io/badge/Clerk-6C47FF?style=flat-square&logo=clerk&logoColor=white" alt="Clerk"/>
@@ -40,7 +40,7 @@
 </p>
 
 <p>
-  <a href="https://your-live-url.com"><strong>Live Demo</strong></a> ·
+  <a href="https://flowspace-web-sigma.vercel.app"><strong>Live Demo</strong></a> ·
   <a href="../api/README.md"><strong>Backend Repo</strong></a> ·
   <a href="https://twitter.com/singh_akhil2272"><strong>Building in Public</strong></a>
 </p>
@@ -72,7 +72,7 @@ Most architectural decisions are deliberate:
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 15 (App Router) |
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS + shadcn/ui |
 | Auth | Clerk |
