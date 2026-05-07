@@ -1,9 +1,10 @@
 import { SignUp } from '@clerk/nextjs'
+import { dark } from '@clerk/themes'
 
 export default function VerifyEmailPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <SignUp />
+    <div className="flex min-h-screen items-center justify-center bg-[#0E0F11]">
+      <SignUp appearance={{ baseTheme: dark }} />
     </div>
   )
 }
