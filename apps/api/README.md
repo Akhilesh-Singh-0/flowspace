@@ -100,6 +100,23 @@ Every architectural decision is intentional:
     └─────────────────┘
 
 
+## Performance
+
+Load-tested against the Railway deployment (free tier, shared infrastructure):
+
+| Metric | Result |
+|--------|--------|
+| Throughput | ~150 req/s at 50 concurrent connections |
+| Latency p50 | 313ms |
+| Latency p95 | 359ms |
+| Concurrent WebSocket clients | 50/50 connected, 0 failures |
+| Errors under concurrent write load | 0 |
+
+> Note: baseline latency reflects Railway free-tier cold infrastructure.
+> The architecture is horizontally scalable — API and WebSocket servers
+> are decoupled via Redis Pub/Sub and scale independently.
+
+
 ## Tech Stack
 
 | Layer | Technology |
