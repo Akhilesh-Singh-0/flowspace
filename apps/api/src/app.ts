@@ -21,7 +21,14 @@ export const createApp = () => {
   const app = express()
 
   app.use(helmet())
-  app.use(cors())
+  app.use(
+    cors({
+      origin:
+        process.env.FRONTEND_URL ||
+        'https://flowspace-web-sigma.vercel.app',
+      credentials: true,
+    })
+  )
   app.use(generalLimiter)
   app.use('/auth/webhook', express.raw({ type: 'application/json' }))
   app.use(express.json())
