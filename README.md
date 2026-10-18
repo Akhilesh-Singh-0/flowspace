@@ -27,7 +27,7 @@
 
 <h1>FlowSpace</h1>
 
-<p>project management platform — built from scratch</p>
+<p>project management platform built from scratch</p>
 
 <p><em>A full-stack project management platform built to understand how real-time, multi-tenant, role-based systems work at the engineering level.</em></p>
 
