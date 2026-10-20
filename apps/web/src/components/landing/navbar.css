@@ -1,0 +1,146 @@
+.fs-landing .fs-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  isolation: isolate;
+  width: calc(100% - 2rem);
+  max-width: 80rem;
+  margin: 0 auto;
+  border: 1px solid var(--fs-border);
+  border-radius: 1rem;
+  background-color: #0b0d0e;
+}
+
+
+.fs-landing .fs-navbar-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 4.25rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.fs-landing .fs-navbar-brand {
+  min-width: 0;
+  justify-self: start;
+}
+
+.fs-landing .fs-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--fs-text);
+  font-size: var(--fs-text-lg);
+  font-weight: var(--fs-weight-semibold);
+  text-decoration: none;
+}
+
+.fs-landing .fs-brand-mark {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: var(--fs-radius-sm);
+  background: var(--fs-rose);
+  color: var(--fs-bg);
+}
+
+.fs-landing .fs-navbar-links,
+.fs-landing .fs-navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.fs-landing .fs-navbar-links {
+  justify-content: center;
+  gap: clamp(1.25rem, 2.5vw, 2.25rem);
+}
+
+.fs-landing .fs-navbar-links a,
+.fs-landing .fs-navbar-signin {
+  color: var(--fs-text);
+  font-size: var(--fs-text-md);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.fs-landing .fs-navbar-links a:hover,
+.fs-landing .fs-navbar-signin:hover {
+  color: var(--fs-blue);
+}
+
+.fs-landing .fs-navbar-actions {
+  justify-self: end;
+  gap: 1rem;
+}
+
+.fs-landing .fs-navbar-github {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  place-items: center;
+  color: var(--fs-text);
+  text-decoration: none;
+}
+
+.fs-landing .fs-navbar-github:hover {
+  color: var(--fs-blue);
+}
+
+.fs-landing .fs-navbar a:focus-visible {
+  outline: 2px solid var(--fs-blue);
+  outline-offset: 4px;
+}
+
+/* Tablet and smaller screens */
+
+@media (max-width: 760px) {
+  .fs-landing .fs-navbar-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    padding-inline: 1rem;
+  }
+
+  .fs-landing .fs-navbar-links {
+    display: none;
+  }
+
+  .fs-landing .fs-navbar-actions {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .fs-landing .fs-navbar {
+    width: calc(100% - 1.25rem);
+    margin-top: 0.625rem;
+    border-radius: 0.75rem;
+  }
+
+  .fs-landing .fs-navbar-inner {
+    min-height: 3.75rem;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .fs-landing .fs-navbar-github {
+    display: none;
+  }
+
+  .fs-landing .fs-navbar-actions {
+    gap: 0.375rem;
+  }
+
+  .fs-landing .fs-navbar-actions .fs-button {
+    padding-inline: 0.625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fs-landing .fs-navbar-links a,
+  .fs-landing .fs-navbar-signin {
+    transition: none;
+  }
+}
