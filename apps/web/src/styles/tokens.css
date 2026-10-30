@@ -1,0 +1,86 @@
+:root {
+  /* Typography */
+  --font-sans: var(--font-inter), Inter, sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Brand */
+  --color-brand-rose: #b46770;
+  --color-brand-charcoal: #0b0d0e;
+  --color-brand-blue: #5a88b2;
+  --color-brand-green: #3b8d63;
+  --color-brand-amber: #d09c54;
+
+  /* Neutral surfaces */
+  --color-background: #0b0d0e;
+  --color-surface: #121516;
+  --color-surface-raised: #191c1e;
+  --color-border: #2a2d2f;
+
+  /* Text */
+  --color-text: #f0efec;
+  --color-text-secondary: #d8d4ce;
+  --color-text-on-accent: #ffffff;
+
+  /* Semantic colours */
+  --color-primary: var(--color-brand-rose);
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #222628;
+  --color-secondary-foreground: #f0efec;
+
+  --color-destructive: #dc5555;
+  --color-destructive-foreground: #ffffff;
+
+  /* Task statuses */
+  --status-rose: var(--color-brand-rose);
+  --status-blue: var(--color-brand-blue);
+  --status-green: var(--color-brand-green);
+  --status-amber: var(--color-brand-amber);
+
+  /* Radius */
+  --radius: 0.5rem;
+  --radius-small: 0.25rem;
+  --radius-medium: 0.375rem;
+  --radius-large: 0.5rem;
+
+  /* Semantic Tailwind colours (HSL channels) */
+  --background: 195 12% 5%;
+  --foreground: 45 8% 93%;
+
+  --card: 195 10% 8%;
+  --card-foreground: 45 8% 93%;
+
+  --popover: 195 10% 8%;
+  --popover-foreground: 45 8% 93%;
+
+  --primary: 353 34% 55%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 195 8% 14%;
+  --secondary-foreground: 45 8% 93%;
+
+  --muted: 200 9% 11%;
+  --muted-foreground: 45 8% 85%;
+
+  --accent: 195 8% 14%;
+  --accent-foreground: 45 8% 93%;
+
+  --destructive: 0 66% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 200 6% 18%;
+  --input: 200 6% 18%;
+  --ring: 353 34% 55%;
+}

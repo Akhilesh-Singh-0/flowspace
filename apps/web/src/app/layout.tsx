@@ -3,7 +3,10 @@ import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "FlowSpace",
@@ -13,7 +16,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
-}
+};
 
 export default function RootLayout({
   children,
@@ -22,8 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
-        <body className={inter.className}>{children}</body>
+      <html lang="en" className={`dark ${inter.variable}`}>
+        <body className="font-sans">{children}</body>
       </html>
     </ClerkProvider>
   );
