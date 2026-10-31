@@ -18,8 +18,8 @@ export default async function DashboardLayout({
       <div className="flex h-dvh overflow-hidden">
         <Sidebar />
 
-        <main className="min-w-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#101112_0%,#08090b_100%)]">
-          <div className="mx-auto w-full max-w-[1600px] px-6 py-8 lg:px-10 lg:py-10">
+        <main className="min-w-0 flex-1 overflow-y-auto bg-surface-canvas">
+          <div className="mx-auto w-full max-w-[1600px] px-6 py-6 lg:px-8 lg:py-8">
             {children}
           </div>
         </main>
@@ -30,9 +30,11 @@ export default async function DashboardLayout({
         position="bottom-right"
         toastOptions={{
           style: {
-            background: "#18181b",
-            border: "1px solid #303034",
-            color: "#eeeeef",
+            background: "var(--color-surface-raised)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-medium)",
+            color: "var(--color-text)",
+            fontSize: "var(--text-medium)",
           },
         }}
       />
