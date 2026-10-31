@@ -26,20 +26,24 @@ const config = {
     },
 
     fontSize: {
-      xs: "var(--text-xs)",
-      sm: "var(--text-sm)",
-      base: "var(--text-base)",
+      small: ["var(--text-small)", { lineHeight: "var(--leading-small)" }],
+      medium: ["var(--text-medium)", { lineHeight: "var(--leading-medium)" }],
+      large: ["var(--text-large)", { lineHeight: "var(--leading-large)" }],
+      xs: ["var(--text-small)", { lineHeight: "var(--leading-small)" }],
+      sm: ["var(--text-medium)", { lineHeight: "var(--leading-medium)" }],
+      base: ["var(--text-medium)", { lineHeight: "var(--leading-medium)" }],
+      "2xl": ["var(--text-large)", { lineHeight: "var(--leading-large)" }],
       lg: "var(--text-lg)",
       xl: "var(--text-xl)",
-      "2xl": "var(--text-2xl)",
       "3xl": "var(--text-3xl)",
       "4xl": "var(--text-4xl)",
     },
 
     fontWeight: {
-      normal: "400",
-      medium: "500",
+      regular: "400",
       semibold: "600",
+      normal: "400",
+      medium: "600",
     },
 
     extend: {
@@ -84,6 +88,60 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+
+        surface: {
+          DEFAULT: "var(--color-surface)",
+          raised: "var(--color-surface-raised)",
+          hover: "var(--color-surface-hover)",
+          canvas: "var(--color-canvas)",
+          sidebar: "var(--color-sidebar)",
+        },
+
+        line: {
+          DEFAULT: "var(--color-border)",
+          subtle: "var(--color-border-subtle)",
+          strong: "var(--color-border-strong)",
+        },
+
+        text: {
+          primary: "var(--color-text)",
+          secondary: "var(--color-text-secondary)",
+          placeholder: "var(--color-text-placeholder)",
+          inverse: "var(--color-text-inverse)",
+          tertiary: "var(--color-text-tertiary)",
+        },
+
+        bone: {
+          DEFAULT: "var(--color-accent)",
+          hover: "var(--color-accent-hover)",
+          muted: "var(--color-accent-muted)",
+          subtle: "var(--color-accent-subtle)",
+        },
+
+        accentCopper: "var(--color-accent)",
+
+        status: {
+          success: "var(--color-success)",
+          info: "var(--color-info)",
+          warning: "var(--color-warning)",
+          danger: "var(--color-danger)",
+          neutral: "var(--color-neutral)",
+        },
+
+        task: {
+          backlog: "var(--status-backlog)",
+          progress: "var(--status-progress)",
+          review: "var(--status-review)",
+          done: "var(--status-done)",
+          cancelled: "var(--status-cancelled)",
+        },
+
+        priority: {
+          low: "var(--priority-low)",
+          medium: "var(--priority-medium)",
+          high: "var(--priority-high)",
+          urgent: "var(--priority-urgent)",
         },
 
         brand: {
