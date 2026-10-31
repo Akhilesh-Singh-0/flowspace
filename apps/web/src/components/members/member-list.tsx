@@ -39,21 +39,21 @@ function MemberItem({
   return (
     <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold shrink-0 transition-colors duration-200 group-hover:bg-primary/20">
+        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold shrink-0 transition-colors duration-200 group-hover:bg-primary/20">
           {initials}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">
+          <p className="text-sm font-normal text-foreground truncate">
             {member.user.name ?? 'Unknown'}
           </p>
-          <p className="text-xs text-muted-foreground truncate">
+          <p className="text-sm text-muted-foreground truncate">
             {member.user.email || 'No email'}
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-3 shrink-0 ml-4">
-        <span className={cn('text-xs px-2.5 py-1 rounded-full font-medium', role.className)}>
+        <span className={cn('text-sm px-2.5 py-1 rounded-full font-normal', role.className)}>
           {role.label}
         </span>
         {canRemove && (
@@ -116,8 +116,8 @@ export function MemberList({
   if (!members || members.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-        <p className="text-sm font-medium text-foreground">No members yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">Invite someone to collaborate</p>
+        <p className="text-sm font-normal text-foreground">No members yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">Invite someone to collaborate</p>
       </div>
     )
   }

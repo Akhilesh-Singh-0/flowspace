@@ -15,7 +15,7 @@ export function CTA() {
         </p>
 
         <h2 id="fs-cta-title">
-          Bring your team's work together.
+          Bring your team&apos;s work together.
         </h2>
 
         <p className="fs-cta-description">

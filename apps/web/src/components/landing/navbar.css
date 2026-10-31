@@ -31,8 +31,8 @@
   align-items: center;
   gap: 0.625rem;
   color: var(--fs-text);
-  font-size: var(--fs-text-lg);
-  font-weight: var(--fs-weight-semibold);
+  font-size: var(--text-large);
+  font-weight: var(--weight-semibold);
   text-decoration: none;
 }
 
@@ -61,7 +61,7 @@
 .fs-landing .fs-navbar-links a,
 .fs-landing .fs-navbar-signin {
   color: var(--fs-text);
-  font-size: var(--fs-text-md);
+  font-size: var(--text-medium);
   text-decoration: none;
   transition: color 150ms ease;
 }

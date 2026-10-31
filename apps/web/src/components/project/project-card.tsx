@@ -102,7 +102,7 @@ export function ProjectCard({
                   if (e.key === 'Escape') handleEditCancel(e)
                 }}
                 onClick={(e) => e.preventDefault()}
-                className="flex-1 bg-secondary border border-primary/40 rounded-md px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                className="flex-1 bg-secondary border border-primary/40 rounded-md px-3 py-1.5 text-sm font-normal text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
               <button
                 onClick={handleEditSave}
@@ -120,9 +120,9 @@ export function ProjectCard({
             </div>
           ) : (
             <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground">{project.title}</p>
+              <p className="text-sm font-normal text-foreground">{project.title}</p>
               {project.description && (
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
                   {project.description}
                 </p>
               )}
@@ -133,7 +133,7 @@ export function ProjectCard({
         {!editing && (
           <div className="flex items-center gap-3 shrink-0 ml-4">
             {timeAgo !== '' && (
-              <span className="text-xs text-muted-foreground/50 tabular-nums">
+              <span className="text-sm text-muted-foreground/50 tabular-nums">
                 {timeAgo}
               </span>
             )}

@@ -67,7 +67,7 @@ export function InviteMemberModal({
               {...register('targetUserId')}
             />
             {errors.targetUserId && (
-              <p className="text-xs text-destructive">
+              <p className="text-sm text-destructive">
                 {errors.targetUserId.message}
               </p>
             )}

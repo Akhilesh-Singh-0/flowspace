@@ -57,7 +57,7 @@ export function AssignLabelModal({
 
           {/* Label name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label className="text-sm font-normal text-muted-foreground uppercase tracking-wide">
               Label name
             </label>
             <Input
@@ -72,7 +72,7 @@ export function AssignLabelModal({
 
           {/* Color picker */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <label className="text-sm font-normal text-muted-foreground uppercase tracking-wide">
               Color
             </label>
             <div className="flex flex-wrap gap-2">
@@ -84,7 +84,7 @@ export function AssignLabelModal({
                   style={{ backgroundColor: c }}
                 >
                   {color === c && (
-                    <span className="flex items-center justify-center w-full h-full text-white text-[10px] font-bold">
+                    <span className="flex items-center justify-center w-full h-full text-white text-sm font-semibold">
                       ✓
                     </span>
                   )}
@@ -94,9 +94,9 @@ export function AssignLabelModal({
 
             {/* Preview */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-xs text-muted-foreground">Preview:</span>
+              <span className="text-sm text-muted-foreground">Preview:</span>
               <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-normal border"
                 style={{
                   backgroundColor: `${color}18`,
                   borderColor: `${color}40`,

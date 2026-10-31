@@ -1,4 +1,6 @@
+
 @import "../styles/tokens.css";
+@config "../../tailwind.config.ts";
 
 @tailwind base;
 @tailwind components;
@@ -23,6 +25,7 @@
     font-weight: var(--weight-regular);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
@@ -42,8 +45,8 @@
   }
 
   ::selection {
-    background: var(--color-brand-rose);
-    color: var(--color-text-on-accent);
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
   }
 }
 
@@ -60,16 +63,12 @@
 /* Accessibility */
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

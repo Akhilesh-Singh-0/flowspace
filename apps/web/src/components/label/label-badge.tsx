@@ -11,7 +11,7 @@ export function LabelBadge({
 }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-normal border"
       style={{
         backgroundColor: `${color}18`,
         borderColor: `${color}50`,

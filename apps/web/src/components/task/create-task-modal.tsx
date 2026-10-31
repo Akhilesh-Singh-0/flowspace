@@ -86,7 +86,7 @@ export function CreateTaskModal({
               {...register('title')}
             />
             {errors.title && (
-              <p className="text-xs text-destructive">{errors.title.message}</p>
+              <p className="text-sm text-destructive">{errors.title.message}</p>
             )}
           </div>
 

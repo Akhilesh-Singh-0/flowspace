@@ -66,7 +66,7 @@ export function CreateProjectModal({
               {...register('title')}
             />
             {errors.title && (
-              <p className="text-xs text-destructive">{errors.title.message}</p>
+              <p className="text-sm text-destructive">{errors.title.message}</p>
             )}
           </div>
 
@@ -80,7 +80,7 @@ export function CreateProjectModal({
               {...register('description')}
             />
             {errors.description && (
-              <p className="text-xs text-destructive">{errors.description.message}</p>
+              <p className="text-sm text-destructive">{errors.description.message}</p>
             )}
           </div>
 

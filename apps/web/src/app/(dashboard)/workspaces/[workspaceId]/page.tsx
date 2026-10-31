@@ -53,8 +53,8 @@ export default function WorkspacePage() {
 
         {!isLoading && !isError && projects?.length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-            <p className="text-sm font-medium text-foreground">No projects yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="text-sm font-normal text-foreground">No projects yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
               Create your first project and start tracking work.
             </p>
             {canCreateProject && (

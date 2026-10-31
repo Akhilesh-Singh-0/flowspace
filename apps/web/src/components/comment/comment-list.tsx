@@ -25,7 +25,7 @@ function CommentItem({
 
   return (
     <div className="group flex gap-3">
-      <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5">
+      <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold shrink-0 mt-0.5">
         {initials}
       </div>
 
@@ -33,10 +33,10 @@ function CommentItem({
 
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-foreground">
+            <span className="text-sm font-semibold text-foreground">
               {comment.author.name ?? 'Unknown'}
             </span>
-            <span className="text-xs text-muted-foreground/50">
+            <span className="text-sm text-muted-foreground/50">
               {new Date(comment.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -45,7 +45,7 @@ function CommentItem({
             <button
               onClick={() => deleteComment(comment.id)}
               title="Delete comment"
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground/40 hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150 opacity-0 group-hover:opacity-100"
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-sm text-muted-foreground/40 hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150 opacity-0 group-hover:opacity-100"
             >
               <Trash2 className="w-3 h-3" />
               <span>Delete</span>
@@ -101,7 +101,7 @@ export function CommentList({
 
   if (!comments || comments.length === 0) {
     return (
-      <p className="text-xs text-muted-foreground text-center py-4">
+      <p className="text-sm text-muted-foreground text-center py-4">
         No comments yet. Be the first to comment.
       </p>
     )

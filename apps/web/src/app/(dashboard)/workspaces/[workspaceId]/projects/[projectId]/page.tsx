@@ -1,6 +1,7 @@
+
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useTasks } from '@/hooks/use-tasks'
 import { useWebSocket } from '@/hooks/use-websocket'
@@ -13,10 +14,10 @@ import { Header } from '@/components/layout/header'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Search, X, List, LayoutDashboard } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { TaskStatus, TaskPriority, Task } from '@/types'
 
 const VIEW_KEY = 'flowspace:task-view'
+const columns = 'grid-cols-[88px_minmax(0,1fr)_120px_132px]'
 
 export default function ProjectPage() {
   const { workspaceId, projectId } = useParams<{
@@ -31,36 +32,30 @@ export default function ProjectPage() {
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('')
   const [view, setView] = useState<'list' | 'board'>('list')
 
-  useEffect(() => {
-    const saved = localStorage.getItem(VIEW_KEY)
-    if (saved === 'board' || saved === 'list') setView(saved)
-  }, [])
-
-  function switchView(v: 'list' | 'board') {
-    setView(v)
-    localStorage.setItem(VIEW_KEY, v)
-  }
-
   const { data: tasks, isLoading, isError } = useTasks(workspaceId, projectId)
-  useWebSocket(workspaceId, projectId)
   const role = useCurrentRole(workspaceId)
 
-  const canCreateTask = role !== 'VIEWER'
-  const canDeleteTask = role !== 'VIEWER'
+  useWebSocket(workspaceId, projectId)
 
-  const selectedTask = tasks?.find((t) => t.id === selectedTaskId) ?? null
+  useEffect(() => {
+    const saved = localStorage.getItem(VIEW_KEY)
+    if (saved === 'list' || saved === 'board') setView(saved)
+  }, [])
 
   const filteredTasks = useMemo(() => {
-    if (!tasks) return []
-    return tasks.filter((task) => {
-      const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase())
-      const matchesStatus = statusFilter ? task.status === statusFilter : true
-      const matchesPriority = priorityFilter ? task.priority === priorityFilter : true
-      return matchesSearch && matchesStatus && matchesPriority
-    })
+    const query = search.trim().toLowerCase()
+
+    return (tasks ?? []).filter((task) =>
+      task.title.toLowerCase().includes(query) &&
+      (!statusFilter || task.status === statusFilter) &&
+      (!priorityFilter || task.priority === priorityFilter)
+    )
   }, [tasks, search, statusFilter, priorityFilter])
 
-  const hasFilters = search || statusFilter || priorityFilter
+  const selectedTask = tasks?.find(({ id }) => id === selectedTaskId) ?? null
+  const canManageTasks = role !== 'VIEWER'
+  const hasTasks = !isLoading && !isError && Boolean(tasks?.length)
+  const hasFilters = Boolean(search || statusFilter || priorityFilter)
 
   function clearFilters() {
     setSearch('')
@@ -68,170 +63,190 @@ export default function ProjectPage() {
     setPriorityFilter('')
   }
 
-  const hasTasks = !isLoading && !isError && tasks && tasks.length > 0
+  function switchView(next: 'list' | 'board') {
+    setView(next)
+    localStorage.setItem(VIEW_KEY, next)
+  }
 
   return (
-    <div>
-      <div className={cn(view === 'list' ? 'max-w-3xl mx-auto' : 'w-full')}>
-        <Header
-          title="Tasks"
-          description="All tasks in this project."
-          action={
-            <div className="flex items-center gap-2">
-              
-              <div className="flex items-center rounded-md border border-border bg-secondary p-0.5">
-                <button
-                  onClick={() => switchView('list')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all duration-150',
-                    view === 'list'
-                      ? 'bg-accent text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <List size={13} />
-                  List
-                </button>
-                <button
-                  onClick={() => switchView('board')}
-                  className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all duration-150',
-                    view === 'board'
-                      ? 'bg-accent text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <LayoutDashboard size={13} />
-                  Board
-                </button>
-              </div>
+    <div className="w-full">
+      <Header
+        title="Tasks"
+        description="All tasks in this project."
+        action={
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 border border-border">
+              {(['list', 'board'] as const).map((item) => {
+                const active = view === item
+                const Icon = item === 'list' ? List : LayoutDashboard
 
-              {canCreateTask && hasTasks && (
-                <Button
-                  onClick={() => setOpen(true)}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
-                >
-                  <Plus size={15} />
-                  New task
-                </Button>
-              )}
-            </div>
-          }
-        />
-
-        {hasTasks && (
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <div className="relative flex-1 min-w-[180px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-md border border-border bg-secondary pl-8 pr-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-              />
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => switchView(item)}
+                    aria-pressed={active}
+                    className={`flex items-center gap-2 px-3 text-sm transition-colors ${
+                      active
+                        ? 'bg-[#292321] text-[#f0eeeb]'
+                        : 'text-[#c5c1ba] hover:bg-white/[0.04]'
+                    }`}
+                  >
+                    <Icon size={15} />
+                    {item === 'list' ? 'List' : 'Board'}
+                  </button>
+                )
+              })}
             </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
-              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-            >
-              <option value="">All statuses</option>
-              <option value="BACKLOG">Backlog</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="IN_REVIEW">In Review</option>
-              <option value="DONE">Done</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
-
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
-              className="rounded-md border border-border bg-secondary px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-            >
-              <option value="">All priorities</option>
-              <option value="URGENT">Urgent</option>
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
-            </select>
-
-            {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-150"
-              >
-                <X className="w-3 h-3" />
-                Clear
-              </button>
-            )}
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-12 w-full rounded-lg" />
-            <Skeleton className="h-12 w-full rounded-lg" />
-          </div>
-        )}
-
-        {isError && (
-          <p className="text-sm text-destructive">Failed to load tasks. Please try again.</p>
-        )}
-
-        {!isLoading && !isError && tasks?.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-            <p className="text-sm font-medium text-foreground">No tasks yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Create your first task to get started
-            </p>
-            {canCreateTask && (
-              <Button
-                onClick={() => setOpen(true)}
-                className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
-              >
+            {canManageTasks && (
+              <Button onClick={() => setOpen(true)}>
                 <Plus size={15} />
                 New task
               </Button>
             )}
           </div>
-        )}
+        }
+      />
 
-        {hasTasks && filteredTasks.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-            <p className="text-sm font-medium text-foreground">No tasks match your filters</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Try adjusting your search or filters
-            </p>
-            <button onClick={clearFilters} className="mt-4 text-xs text-primary hover:underline">
-              Clear filters
+      {hasTasks && (
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[220px] flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#bdb9b2]"
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search tasks"
+              className="h-9 w-full border border-border bg-transparent pl-10 pr-9 text-sm text-[#f0eeeb] outline-none placeholder:text-[#bdb9b2] focus:border-[#b46770]"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#bdb9b2] hover:text-white"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
+            aria-label="Filter by status"
+            className="h-9 min-w-[145px] border border-border bg-transparent px-3 text-sm text-[#e5e1da] outline-none focus:border-[#b46770]"
+          >
+            <option value="">All statuses</option>
+            <option value="BACKLOG">Backlog</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="IN_REVIEW">In Review</option>
+            <option value="DONE">Done</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
+            aria-label="Filter by priority"
+            className="h-9 min-w-[145px] border border-border bg-transparent px-3 text-sm text-[#e5e1da] outline-none focus:border-[#b46770]"
+          >
+            <option value="">All priorities</option>
+            <option value="URGENT">Urgent</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="flex h-9 items-center gap-1.5 px-2 text-sm text-[#d8d4ce] hover:text-white"
+            >
+              <X size={14} />
+              Clear
             </button>
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
-        {hasTasks && filteredTasks.length > 0 && view === 'list' && (
-          <div className="flex flex-col gap-2">
-            {filteredTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                workspaceId={workspaceId}
-                onClick={() => setSelectedTaskId(task.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {isLoading && (
+        <div className="divide-y divide-border border-y border-border">
+          {Array.from({ length: 5 }, (_, i) => (
+            <Skeleton key={i} className="h-12 w-full rounded-none" />
+          ))}
+        </div>
+      )}
 
-      {hasTasks && filteredTasks.length > 0 && view === 'board' && (
-        <div className="-mx-8 px-6">
+      {isError && (
+        <p className="border-y border-border py-5 text-sm text-[#e5e1da]">
+          Failed to load tasks. Please try again.
+        </p>
+      )}
+
+      {!isLoading && !isError && tasks?.length === 0 && (
+        <div className="border-y border-border py-14 text-center">
+          <p className="font-semibold text-[#f0eeeb]">No tasks yet</p>
+          <p className="mt-2 text-sm text-[#c5c1ba]">
+            Create your first task to get started.
+          </p>
+          {canManageTasks && (
+            <Button onClick={() => setOpen(true)} className="mt-5">
+              <Plus size={15} />
+              New task
+            </Button>
+          )}
+        </div>
+      )}
+
+      {hasTasks && !filteredTasks.length && (
+        <div className="border-y border-border py-14 text-center">
+          <p className="font-semibold text-[#f0eeeb]">No matching tasks</p>
+          <p className="mt-2 text-sm text-[#c5c1ba]">
+            Try changing your search or filters.
+          </p>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="mt-4 text-sm font-semibold text-[#d8a0a6] hover:text-[#e5b5ba]"
+          >
+            Clear filters
+          </button>
+        </div>
+      )}
+
+      {hasTasks && filteredTasks.length > 0 && (
+        view === 'list' ? (
+          <div className="overflow-x-auto">
+            <div className="min-w-[680px]">
+              <div className={`grid ${columns} items-center gap-4 border-y border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#bdb9b2]`}>
+                <span>Priority</span>
+                <span>Task</span>
+                <span>Assignee</span>
+                <span>Status</span>
+              </div>
+              <div className="divide-y divide-border">
+                {filteredTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    workspaceId={workspaceId}
+                    onClick={() => setSelectedTaskId(task.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
           <KanbanBoard
             tasks={filteredTasks}
             onTaskClick={(task: Task) => setSelectedTaskId(task.id)}
           />
-        </div>
+        )
       )}
 
       <CreateTaskModal
@@ -245,7 +260,7 @@ export default function ProjectPage() {
         task={selectedTask}
         projectId={projectId}
         workspaceId={workspaceId}
-        canDelete={canDeleteTask}
+        canDelete={canManageTasks}
         onClose={() => setSelectedTaskId(null)}
         onDeleted={() => setSelectedTaskId(null)}
       />

@@ -7,6 +7,7 @@ import { useCreateWorkspace } from '@/hooks/use-workspaces'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -40,13 +41,11 @@ export function CreateWorkspaceModal({
     setValue,
     reset,
     formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) })
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
 
-  function onNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const name = e.target.value
-    setValue('name', name)
-    setValue('slug', name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-  }
+  const nameField = register('name')
 
   function onSubmit(data: FormData) {
     mutate(data, {
@@ -54,37 +53,56 @@ export function CreateWorkspaceModal({
         reset()
         onClose()
       },
+      onError: (error: unknown) => {
+        const err = error as {
+          response?: { data?: { error?: { message?: string } } }
+        }
+
+        if (err?.response?.data?.error?.message === 'Workspace slug already exists') {
+          toast.error('This slug is already taken. Try another one.')
+        } else {
+          toast.error('Failed to create workspace. Please try again.')
+        }
+      },
     })
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-zinc-900 border-zinc-800">
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Create workspace</DialogTitle>
+          <DialogTitle>Create workspace</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Name</Label>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="name">Workspace name</Label>
             <Input
               id="name"
               placeholder="My Workspace"
-              className="bg-zinc-800 border-zinc-700"
-              {...register('name')}
-              onChange={onNameChange}
+              {...nameField}
+              onChange={(event) => {
+                nameField.onChange(event)
+
+                const slug = event.target.value
+                  .toLowerCase()
+                  .trim()
+                  .replace(/\s+/g, '-')
+                  .replace(/[^a-z0-9-]/g, '')
+
+                setValue('slug', slug, { shouldValidate: true })
+              }}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="slug">Slug</Label>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Workspace URL</Label>
             <Input
               id="slug"
               placeholder="my-workspace"
-              className="bg-zinc-800 border-zinc-700"
               {...register('slug')}
             />
             {errors.slug && (
@@ -93,19 +111,10 @@ export function CreateWorkspaceModal({
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              className="text-muted-foreground"
-            >
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="bg-[#1D9E75] hover:bg-[#179E6E] text-white"
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Creating...' : 'Create workspace'}
             </Button>
           </div>
