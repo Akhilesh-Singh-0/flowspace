@@ -12,38 +12,38 @@ export function Sidebar() {
   const workspaceId = params?.workspaceId;
 
   const navItemClass = (active: boolean) =>
-    `flex h-9 items-center gap-3 rounded-md px-3 text-sm transition-colors ${
+    `relative flex h-8 items-center gap-3 rounded-md px-3 text-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
       active
-        ? "bg-[#202023] font-medium text-[#eeeeef]"
-        : "text-[#a1a1a6] hover:bg-[#18181b] hover:text-[#eeeeef]"
+        ? "bg-surface-hover font-semibold text-foreground before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-bone"
+        : "text-text-secondary hover:bg-surface-hover hover:text-foreground"
     }`;
 
   return (
-    <aside className="relative z-10 flex h-dvh w-60 shrink-0 flex-col bg-[#0b0c0e]">
-      <div className="flex h-14 shrink-0 items-center gap-3 px-5">
-        <Logo size={27} />
-        <span className="text-base font-semibold tracking-tight text-[#eeeeef]">
+    <aside className="relative z-10 flex h-dvh w-56 shrink-0 flex-col">
+      <div className="flex h-12 shrink-0 items-center gap-3 px-6">
+        <Logo size={24} />
+        <span className="text-medium font-semibold text-foreground">
           FlowSpace
         </span>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
         <Link
           href="/workspaces"
           aria-current={pathname === "/workspaces" ? "page" : undefined}
           className={navItemClass(pathname === "/workspaces")}
         >
-          <LayoutDashboard size={16} strokeWidth={1.8} />
+          <LayoutDashboard size={16} strokeWidth={1.75} />
           <span>Workspaces</span>
         </Link>
 
         {workspaceId && (
-          <div className="pt-7">
-            <p className="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-[#77777d]">
+          <div className="pt-5">
+            <p className="px-3 pb-1.5 text-small font-semibold text-text-secondary">
               Workspace
             </p>
 
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <Link
                 href={`/workspaces/${workspaceId}`}
                 aria-current={
@@ -57,7 +57,7 @@ export function Sidebar() {
                     pathname.startsWith(`/workspaces/${workspaceId}/projects`)
                 )}
               >
-                <FolderKanban size={16} strokeWidth={1.8} />
+                <FolderKanban size={16} strokeWidth={1.75} />
                 <span>Projects</span>
               </Link>
 
@@ -72,7 +72,7 @@ export function Sidebar() {
                   pathname === `/workspaces/${workspaceId}/members`
                 )}
               >
-                <Users size={16} strokeWidth={1.8} />
+                <Users size={16} strokeWidth={1.75} />
                 <span>Members</span>
               </Link>
             </div>
@@ -80,9 +80,9 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="flex h-16 shrink-0 items-center gap-3 px-4">
+      <div className="flex h-14 shrink-0 items-center gap-3 px-6">
         <UserButton afterSignOutUrl="/sign-in" />
-        <span className="text-sm font-medium text-[#eeeeef]">
+        <span className="text-medium font-semibold text-foreground">
           My Account
         </span>
       </div>

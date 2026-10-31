@@ -15,10 +15,10 @@ export default async function DashboardLayout({
 
   return (
     <QueryProvider>
-      <div className="flex h-dvh overflow-hidden">
+      <div className="flex h-dvh overflow-hidden bg-surface-sidebar">
         <Sidebar />
 
-        <main className="min-w-0 flex-1 overflow-y-auto bg-surface-canvas">
+        <main className="my-2 mr-2 min-w-0 flex-1 overflow-y-auto rounded-lg border border-line bg-surface">
           <div className="mx-auto w-full max-w-[1600px] px-6 py-6 lg:px-8 lg:py-8">
             {children}
           </div>
