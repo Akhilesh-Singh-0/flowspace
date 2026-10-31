@@ -17,7 +17,7 @@ const priorityLevels: Record<string, number> = {
   URGENT: 3,
 }
 
-function PriorityGlyph({ priority }: { priority: string }) {
+export function PriorityGlyph({ priority }: { priority: string }) {
   const level = priorityLevels[priority] ?? 1
   const urgent = priority === 'URGENT'
 
