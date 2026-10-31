@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -35,8 +34,36 @@ type TaskUpdate = {
   assigneeId?: string | null
 }
 
+const iconButton =
+  'flex h-7 w-7 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50'
+
+const iconButtonDanger =
+  'flex h-7 w-7 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-hover hover:text-priority-urgent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50'
+
+const fieldClass =
+  'h-8 w-full rounded-md border border-transparent bg-transparent px-2 text-medium text-foreground outline-none transition-colors hover:bg-surface-hover focus:border-ring focus:ring-1 focus:ring-ring disabled:opacity-50 [color-scheme:dark]'
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm font-semibold text-[#bdb9b2]">{children}</p>
+  return (
+    <p className="text-small font-semibold text-text-secondary">{children}</p>
+  )
+}
+
+function Property({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-[88px_minmax(0,1fr)] items-center gap-2">
+      <span className="text-small font-semibold text-text-secondary">
+        {label}
+      </span>
+      {children}
+    </div>
+  )
 }
 
 export function TaskDetail({
@@ -118,15 +145,47 @@ export function TaskDetail({
       />
 
       <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-border bg-card transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-line bg-surface-raised transition-transform duration-300 ${
           task ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {task && (
           <>
-            <header className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-4">
+            <header className="flex h-12 shrink-0 items-center justify-between border-b border-line px-4">
+              <button
+                onClick={onClose}
+                aria-label="Close task"
+                className={iconButton}
+              >
+                <PanelRightClose size={16} />
+              </button>
+
+              {!editingTitle && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setEditingTitle(true)}
+                    aria-label="Edit title"
+                    className={iconButton}
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      aria-label="Delete task"
+                      className={iconButtonDanger}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </header>
+
+            <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
               {editingTitle ? (
-                <>
+                <div className="flex items-center gap-2">
                   <input
                     autoFocus
                     value={titleValue}
@@ -138,10 +197,15 @@ export function TaskDetail({
                         setEditingTitle(false)
                       }
                     }}
-                    className="h-9 min-w-0 flex-1 border border-border bg-transparent px-2 text-sm text-foreground outline-none focus:border-[#b46770]"
+                    className="h-9 min-w-0 flex-1 rounded-md border border-ring bg-surface px-3 text-medium font-semibold text-foreground outline-none focus:ring-1 focus:ring-ring"
                   />
-                  <button onClick={saveTitle} disabled={isUpdating} aria-label="Save title">
-                    <Check size={17} />
+                  <button
+                    onClick={saveTitle}
+                    disabled={isUpdating}
+                    aria-label="Save title"
+                    className={iconButton}
+                  >
+                    <Check size={16} />
                   </button>
                   <button
                     onClick={() => {
@@ -149,83 +213,64 @@ export function TaskDetail({
                       setEditingTitle(false)
                     }}
                     aria-label="Cancel editing"
+                    className={iconButton}
                   >
-                    <X size={17} />
+                    <X size={16} />
                   </button>
-                </>
+                </div>
               ) : (
-                <>
-                  <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">
-                    {task.title}
-                  </h2>
-                  <button onClick={() => setEditingTitle(true)} aria-label="Edit title">
-                    <Pencil size={15} />
-                  </button>
-                  {canDelete && (
-                    <button
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      aria-label="Delete task"
-                      className="text-[#d08b91] hover:text-[#e5a0a6]"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
-                  <button onClick={onClose} aria-label="Close task">
-                    <PanelRightClose size={18} />
-                  </button>
-                </>
+                <h2 className="break-words text-large font-semibold text-foreground">
+                  {task.title}
+                </h2>
               )}
-            </header>
 
-            <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-              <div className="grid grid-cols-2 gap-x-5 gap-y-4">
-                <div className="space-y-2">
-                  <SectionLabel>Status</SectionLabel>
+              <div className="space-y-1">
+                <Property label="Status">
                   <select
                     value={task.status}
                     onChange={(e) => update({ status: e.target.value as TaskStatus })}
                     disabled={isUpdating}
-                    className="h-9 w-full border-b border-border bg-transparent text-sm text-foreground outline-none focus:border-[#b46770]"
+                    aria-label="Status"
+                    className={fieldClass}
                   >
                     {statuses.map(({ value, label }) => (
                       <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
-                </div>
+                </Property>
 
-                <div className="space-y-2">
-                  <SectionLabel>Priority</SectionLabel>
+                <Property label="Priority">
                   <select
                     value={task.priority}
                     onChange={(e) => update({ priority: e.target.value as TaskPriority })}
                     disabled={isUpdating}
-                    className="h-9 w-full border-b border-border bg-transparent text-sm text-foreground outline-none focus:border-[#b46770]"
+                    aria-label="Priority"
+                    className={fieldClass}
                   >
                     {priorities.map(({ value, label }) => (
                       <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
-                </div>
+                </Property>
 
-                <div className="space-y-2">
-                  <SectionLabel>Due date</SectionLabel>
+                <Property label="Due date">
                   <input
                     type="date"
                     value={task.dueDate ? task.dueDate.split('T')[0] : ''}
                     onChange={(e) => update({ dueDate: e.target.value || null })}
                     disabled={isUpdating}
-                    className="h-9 w-full border-b border-border bg-transparent text-sm text-foreground outline-none focus:border-[#b46770]"
+                    aria-label="Due date"
+                    className={fieldClass}
                   />
-                </div>
+                </Property>
 
-                <div className="space-y-2">
-                  <SectionLabel>Assignee</SectionLabel>
+                <Property label="Assignee">
                   <select
                     value={task.assigneeId ?? ''}
                     onChange={(e) => update({ assigneeId: e.target.value || null })}
                     disabled={isUpdating}
-                    className="h-9 w-full border-b border-border bg-transparent text-sm text-foreground outline-none focus:border-[#b46770]"
+                    aria-label="Assignee"
+                    className={fieldClass}
                   >
                     <option value="">Unassigned</option>
                     {members?.map((member) => (
@@ -234,13 +279,13 @@ export function TaskDetail({
                       </option>
                     ))}
                   </select>
-                </div>
+                </Property>
               </div>
 
               {task.description && (
                 <section className="space-y-2">
                   <SectionLabel>Description</SectionLabel>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[#e5e1da]">
+                  <p className="whitespace-pre-wrap text-medium text-foreground">
                     {task.description}
                   </p>
                 </section>
@@ -251,7 +296,7 @@ export function TaskDetail({
                   <SectionLabel>Labels</SectionLabel>
                   <button
                     onClick={() => setLabelModalOpen(true)}
-                    className="flex items-center gap-1.5 text-sm text-[#d8a0a6] hover:text-[#e5b5ba]"
+                    className="flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
                     <Plus size={14} />
                     Add label
@@ -269,12 +314,14 @@ export function TaskDetail({
                       />
                     ))
                   ) : (
-                    <p className="text-sm text-[#bdb9b2]">No labels assigned.</p>
+                    <p className="text-medium text-text-secondary">
+                      No labels assigned.
+                    </p>
                   )}
                 </div>
               </section>
 
-              <section className="space-y-4 border-t border-border pt-5">
+              <section className="space-y-4 border-t border-line pt-5">
                 <SectionLabel>Comments</SectionLabel>
                 <CommentList workspaceId={workspaceId} taskId={task.id} />
                 <CommentInput workspaceId={workspaceId} taskId={task.id} />
