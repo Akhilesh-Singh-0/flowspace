@@ -14,7 +14,7 @@ export default function WorkspacesPage() {
   const { data: workspaces, isLoading } = useWorkspaces()
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
+    <div className="mx-auto w-full max-w-5xl">
       <Header
         title="Workspaces"
         description="Manage your teams and their projects."
@@ -26,7 +26,7 @@ export default function WorkspacesPage() {
         }
       />
 
-      <div className="-mx-3 mt-4">
+      <div className="-mx-3">
         {isLoading ? (
           <div className="space-y-0.5">
             {[1, 2, 3].map((item) => (
