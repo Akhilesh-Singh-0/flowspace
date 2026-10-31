@@ -19,38 +19,35 @@ export default function WorkspacesPage() {
         title="Workspaces"
         description="Manage your teams and their projects."
         action={
-          <Button onClick={() => setOpen(true)} className="gap-2">
-            <Plus size={15} />
+          <Button onClick={() => setOpen(true)}>
+            <Plus size={16} />
             New workspace
           </Button>
         }
       />
 
-      <div className="mt-8">
+      <div className="-mx-3 mt-4">
         {isLoading ? (
-          <div className="divide-y divide-border border-y border-border">
+          <div className="space-y-0.5">
             {[1, 2, 3].map((item) => (
-              <div key={item} className="flex items-center gap-3 py-4">
-                <Skeleton className="h-9 w-9 rounded-md" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-36" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
+              <div key={item} className="flex h-11 items-center gap-3 px-3">
+                <Skeleton className="h-7 w-7 rounded-md" />
+                <Skeleton className="h-4 w-40" />
               </div>
             ))}
           </div>
         ) : workspaces?.length ? (
-          <div className="divide-y divide-border border-y border-border">
+          <div className="space-y-0.5">
             {workspaces.map((workspace) => (
               <WorkspaceCard key={workspace.id} workspace={workspace} />
             ))}
           </div>
         ) : (
-          <div className="border-y border-border py-14 text-center">
-            <p className="text-sm font-medium text-foreground">
+          <div className="py-16 text-center">
+            <p className="text-medium font-semibold text-foreground">
               No workspaces yet
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-medium text-text-secondary">
               Create a workspace to start organizing your team&apos;s work.
             </p>
           </div>
