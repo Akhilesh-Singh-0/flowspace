@@ -25,18 +25,17 @@ function CommentItem({
 
   return (
     <div className="group flex gap-3">
-      <div className="w-7 h-7 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-semibold shrink-0 mt-0.5">
+      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-hover text-small font-semibold text-foreground">
         {initials}
       </div>
 
-      <div className="flex-1 min-w-0 rounded-lg border border-border bg-secondary/40 px-3 py-2.5 transition-colors duration-150 group-hover:border-border/80">
-
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-foreground">
+      <div className="min-w-0 flex-1">
+        <div className="mb-0.5 flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-medium font-semibold text-foreground">
               {comment.author.name ?? 'Unknown'}
             </span>
-            <span className="text-sm text-muted-foreground/50">
+            <span className="text-small text-text-secondary">
               {new Date(comment.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -44,17 +43,17 @@ function CommentItem({
           {isOwner && (
             <button
               onClick={() => deleteComment(comment.id)}
+              aria-label="Delete comment"
               title="Delete comment"
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-sm text-muted-foreground/40 hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150 opacity-0 group-hover:opacity-100"
+              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-small text-text-secondary opacity-0 transition-[color,opacity] hover:text-priority-urgent focus-visible:opacity-100 group-hover:opacity-100"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="h-3 w-3" />
               <span>Delete</span>
             </button>
           )}
         </div>
 
-        {/* Body */}
-        <p className="text-sm text-foreground/80 leading-relaxed break-words">
+        <p className="whitespace-pre-wrap break-words text-medium text-foreground">
           {comment.body}
         </p>
       </div>
@@ -88,11 +87,11 @@ export function CommentList({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {[1, 2].map((i) => (
-          <div key={i} className="flex gap-3 animate-pulse">
-            <div className="w-7 h-7 rounded-full bg-secondary shrink-0" />
-            <div className="flex-1 h-16 bg-secondary rounded-lg" />
+          <div key={i} className="flex animate-pulse gap-3">
+            <div className="h-6 w-6 shrink-0 rounded-full bg-surface-hover" />
+            <div className="h-12 flex-1 rounded-md bg-surface-hover" />
           </div>
         ))}
       </div>
@@ -101,14 +100,14 @@ export function CommentList({
 
   if (!comments || comments.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground text-center py-4">
+      <p className="py-2 text-center text-medium text-text-secondary">
         No comments yet. Be the first to comment.
       </p>
     )
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {comments.map((comment) => (
         <CommentItem
           key={comment.id}

@@ -36,13 +36,12 @@ export function CommentInput({
         onKeyDown={handleKeyDown}
         placeholder="Write a comment... (Cmd+Enter to submit)"
         rows={3}
-        className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
+        className="w-full resize-none rounded-md border border-input bg-surface px-3 py-2 text-medium text-foreground outline-none transition-colors placeholder:text-text-placeholder focus:border-ring focus:ring-1 focus:ring-ring"
       />
       <div className="flex justify-end">
         <Button
           onClick={handleSubmit}
           disabled={isPending || !value.trim()}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           {isPending ? 'Posting...' : 'Comment'}
         </Button>
