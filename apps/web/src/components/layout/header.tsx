@@ -10,16 +10,12 @@ export function Header({
   action?: ReactNode;
 }) {
   return (
-    <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-[#2a2d2f] pb-5">
+    <header className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight text-[#f0efec]">
-          {title}
-        </h1>
+        <h1 className="text-large font-semibold text-foreground">{title}</h1>
 
         {description && (
-          <p className="mt-2 text-sm leading-relaxed text-[#d8d4ce]">
-            {description}
-          </p>
+          <p className="mt-1 text-medium text-text-secondary">{description}</p>
         )}
       </div>
 
