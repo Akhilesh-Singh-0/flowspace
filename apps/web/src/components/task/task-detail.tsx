@@ -231,7 +231,7 @@ export function TaskDetail({
                     onChange={(e) => update({ status: e.target.value as TaskStatus })}
                     disabled={isUpdating}
                     aria-label="Status"
-                    className={fieldClass}
+                    className={`${fieldClass} native-select`}
                   >
                     {statuses.map(({ value, label }) => (
                       <option key={value} value={value}>{label}</option>
@@ -245,7 +245,7 @@ export function TaskDetail({
                     onChange={(e) => update({ priority: e.target.value as TaskPriority })}
                     disabled={isUpdating}
                     aria-label="Priority"
-                    className={fieldClass}
+                    className={`${fieldClass} native-select`}
                   >
                     {priorities.map(({ value, label }) => (
                       <option key={value} value={value}>{label}</option>
@@ -270,7 +270,7 @@ export function TaskDetail({
                     onChange={(e) => update({ assigneeId: e.target.value || null })}
                     disabled={isUpdating}
                     aria-label="Assignee"
-                    className={fieldClass}
+                    className={`${fieldClass} native-select`}
                   >
                     <option value="">Unassigned</option>
                     {members?.map((member) => (

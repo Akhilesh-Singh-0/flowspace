@@ -139,7 +139,7 @@ export default function ProjectPage() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
             aria-label="Filter by status"
-            className={`${controlClass} min-w-[140px]`}
+            className={`${controlClass} min-w-[140px] native-select`}
           >
             <option value="">All statuses</option>
             <option value="BACKLOG">Backlog</option>
@@ -153,7 +153,7 @@ export default function ProjectPage() {
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | '')}
             aria-label="Filter by priority"
-            className={`${controlClass} min-w-[140px]`}
+            className={`${controlClass} min-w-[140px] native-select`}
           >
             <option value="">All priorities</option>
             <option value="URGENT">Urgent</option>
