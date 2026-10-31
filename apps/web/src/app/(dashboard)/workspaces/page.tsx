@@ -51,7 +51,7 @@ export default function WorkspacesPage() {
               No workspaces yet
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Create a workspace to start organizing your team's work.
+              Create a workspace to start organizing your team&apos;s work.
             </p>
           </div>
         )}
