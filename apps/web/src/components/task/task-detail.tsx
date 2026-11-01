@@ -139,14 +139,16 @@ export function TaskDetail({
     <>
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity ${
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity ${
           task ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
 
       <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-line bg-surface-raised transition-transform duration-300 ${
-          task ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed bottom-4 right-4 top-4 z-50 flex w-[calc(100%-2rem)] max-w-lg flex-col overflow-hidden rounded-lg border border-line bg-surface-raised transition-transform duration-300 ${
+          task
+            ? 'translate-x-0 shadow-[0_8px_24px_rgba(0,0,0,0.35)]'
+            : 'translate-x-[calc(100%+2rem)]'
         }`}
       >
         {task && (
