@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { NativeSelect } from '@/components/ui/native-select'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -71,34 +73,32 @@ export function CreateTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Create task</DialogTitle>
+          <DialogTitle>Create task</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
               placeholder="Task title"
-              className="bg-secondary border-border"
               {...register('title')}
             />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p className="text-small text-destructive">{errors.title.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="description">
-              Description{' '}
-              <span className="text-muted-foreground">(optional)</span>
+              Description <span className="font-normal">(optional)</span>
             </Label>
             <Textarea
               id="description"
               placeholder="What needs to be done?"
-              className="bg-secondary border-border resize-none"
+              className="resize-none"
               rows={3}
               {...register('description')}
             />
@@ -107,65 +107,48 @@ export function CreateTaskModal({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                {...register('status')}
-                className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-              >
+              <NativeSelect id="status" {...register('status')}>
                 <option value="BACKLOG">Backlog</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="IN_REVIEW">In Review</option>
                 <option value="DONE">Done</option>
                 <option value="CANCELLED">Cancelled</option>
-              </select>
+              </NativeSelect>
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="priority">Priority</Label>
-              <select
-                id="priority"
-                {...register('priority')}
-                className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-              >
+              <NativeSelect id="priority" {...register('priority')}>
                 <option value="URGENT">Urgent</option>
                 <option value="HIGH">High</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="LOW">Low</option>
-              </select>
+              </NativeSelect>
             </div>
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="assigneeId">
-              Assignee{' '}
-              <span className="text-muted-foreground">(optional)</span>
+              Assignee <span className="font-normal">(optional)</span>
             </Label>
-            <select
-              id="assigneeId"
-              {...register('assigneeId')}
-              className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-            >
+            <NativeSelect id="assigneeId" {...register('assigneeId')}>
               <option value="">Unassigned</option>
               {members?.map((m) => (
                 <option key={m.user.id} value={m.user.id}>
                   {m.user.name ?? m.user.email}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Creating...' : 'Create task'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -74,8 +75,8 @@ export function CreateWorkspaceModal({
           <DialogTitle>Create workspace</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-2">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-1.5">
             <Label htmlFor="name">Workspace name</Label>
             <Input
               id="name"
@@ -94,11 +95,11 @@ export function CreateWorkspaceModal({
               }}
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-small text-destructive">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="slug">Workspace URL</Label>
             <Input
               id="slug"
@@ -106,18 +107,18 @@ export function CreateWorkspaceModal({
               {...register('slug')}
             />
             {errors.slug && (
-              <p className="text-xs text-destructive">{errors.slug.message}</p>
+              <p className="text-small text-destructive">{errors.slug.message}</p>
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? 'Creating...' : 'Create workspace'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

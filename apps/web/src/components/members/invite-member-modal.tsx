@@ -6,9 +6,11 @@ import { useInviteMember } from '@/hooks/use-members'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { NativeSelect } from '@/components/ui/native-select'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -52,22 +54,22 @@ export function InviteMemberModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Invite member</DialogTitle>
+          <DialogTitle>Invite member</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="targetUserId">Email address</Label>
             <Input
               id="targetUserId"
               type="email"
               placeholder="colleague@company.com"
-              className="bg-secondary border-border"
               {...register('targetUserId')}
             />
             {errors.targetUserId && (
-              <p className="text-sm text-destructive">
+              <p className="text-small text-destructive">
                 {errors.targetUserId.message}
               </p>
             )}
@@ -75,29 +77,21 @@ export function InviteMemberModal({
 
           <div className="space-y-1.5">
             <Label htmlFor="role">Role</Label>
-            <select
-              id="role"
-              {...register('role')}
-              className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-            >
+            <NativeSelect id="role" {...register('role')}>
               <option value="ADMIN">Admin</option>
               <option value="MEMBER">Member</option>
               <option value="VIEWER">Viewer</option>
-            </select>
+            </NativeSelect>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <DialogFooter>
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Inviting...' : 'Invite member'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

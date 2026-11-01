@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -51,56 +52,50 @@ export function CreateProjectModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-zinc-900 border-zinc-800">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Create project</DialogTitle>
+          <DialogTitle>Create project</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
               placeholder="Project title"
-              className="bg-zinc-800 border-zinc-700"
               {...register('title')}
             />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p className="text-small text-destructive">{errors.title.message}</p>
             )}
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="description">Description <span className="text-muted-foreground">(optional)</span></Label>
+            <Label htmlFor="description">
+              Description <span className="font-normal">(optional)</span>
+            </Label>
             <Textarea
               id="description"
               placeholder="What is this project about?"
-              className="bg-zinc-800 border-zinc-700 resize-none"
+              className="resize-none"
               rows={3}
               {...register('description')}
             />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p className="text-small text-destructive">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              className="text-muted-foreground"
-            >
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="bg-[#1D9E75] hover:bg-[#179E6E] text-white"
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Creating...' : 'Create project'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
