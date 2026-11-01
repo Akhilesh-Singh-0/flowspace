@@ -17,14 +17,14 @@
   --control-height: 32px;
 
   --color-canvas: #0c0c0d;
-  --color-sidebar: #0a0a0b;
-  --color-surface: #121214;
-  --color-surface-raised: #18181b;
-  --color-surface-hover: #1e1e22;
+  --color-sidebar: #131416;
+  --color-surface: #17191b;
+  --color-surface-raised: #1b1c1c;
+  --color-surface-hover: #202224;
 
-  --color-border-subtle: #1d1d20;
-  --color-border: #26262a;
-  --color-border-strong: #34343a;
+  --color-border-subtle: #1f2123;
+  --color-border: #272a2c;
+  --color-border-strong: #363a3d;
 
   --color-text: #ececea;
   --color-text-secondary: #c9c8c2;
@@ -75,29 +75,29 @@
   --background: 240 4% 5%;
   --foreground: 60 5% 92%;
 
-  --card: 240 5% 7%;
+  --card: 180 2% 11%;
   --card-foreground: 60 5% 92%;
 
-  --popover: 240 5% 7%;
+  --popover: 180 2% 11%;
   --popover-foreground: 60 5% 92%;
 
   --primary: 43 28% 87%;
   --primary-foreground: 60 2% 8%;
 
-  --secondary: 240 6% 10%;
+  --secondary: 210 6% 13%;
   --secondary-foreground: 60 5% 92%;
 
-  --muted: 240 6% 10%;
+  --muted: 210 6% 13%;
   --muted-foreground: 51 6% 77%;
 
-  --accent: 240 6% 13%;
+  --accent: 210 6% 15%;
   --accent-foreground: 60 5% 92%;
 
   --destructive: 3 50% 58%;
   --destructive-foreground: 60 2% 8%;
 
-  --border: 240 5% 16%;
-  --input: 240 5% 22%;
+  --border: 210 6% 16%;
+  --input: 210 6% 22%;
   --ring: 43 28% 87%;
 
   --color-brand-rose: #b8737c;
