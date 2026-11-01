@@ -7,7 +7,7 @@ import { Footer } from "@/components/landing/footer";
 
 export default function Home() {
   return (
-    <main className="fs-landing landing">
+    <main className="landing">
       <Navbar />
       <Hero />
       <Features />
