@@ -1,53 +1,50 @@
 import Link from "next/link";
-import type { ReactNode, MouseEventHandler } from "react";
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
-type ButtonProps = {
-  children: ReactNode;
+type ButtonProps = ComponentProps<"button"> & {
   variant?: ButtonVariant;
   href?: string;
-  className?: string;
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
-  onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 
 const baseClasses =
-  "inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 text-sm font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex h-8 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border px-3 text-medium font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    "border border-primary bg-primary text-primary-foreground hover:brightness-110",
+  primary: "border-transparent bg-bone text-text-inverse hover:bg-bone-hover",
 
   secondary:
-    "border border-border bg-surface-raised text-foreground hover:bg-surface-hover",
+    "border-line bg-surface-raised text-foreground hover:border-line-strong hover:bg-surface-hover",
 
   ghost:
-    "border border-transparent bg-transparent text-text-secondary hover:bg-surface-hover hover:text-foreground",
+    "border-transparent bg-transparent text-text-secondary hover:bg-surface-hover hover:text-foreground",
+
+  danger:
+    "border-transparent bg-transparent text-text-secondary hover:bg-surface-hover hover:text-priority-urgent",
 };
 
 export function Button({
-  children,
   variant = "primary",
   href,
-  className = "",
+  className,
   type = "button",
   disabled = false,
-  onClick,
+  children,
+  ...props
 }: ButtonProps) {
-  const classes = [baseClasses, variantClasses[variant], className]
-    .filter(Boolean)
-    .join(" ");
+  const classes = cn(baseClasses, variantClasses[variant], className);
 
   if (href) {
     return (
       <Link
         href={disabled ? "#" : href}
-        aria-disabled={disabled}
+        aria-disabled={disabled || undefined}
+        aria-label={props["aria-label"]}
         tabIndex={disabled ? -1 : undefined}
         onClick={disabled ? (event) => event.preventDefault() : undefined}
-        className={`${classes}${disabled ? " pointer-events-none opacity-50" : ""}`}
+        className={cn(classes, disabled && "pointer-events-none opacity-50")}
       >
         {children}
       </Link>
@@ -55,12 +52,7 @@ export function Button({
   }
 
   return (
-    <button
-      type={type}
-      className={classes}
-      disabled={disabled}
-      onClick={onClick}
-    >
+    <button type={type} className={classes} disabled={disabled} {...props}>
       {children}
     </button>
   );
