@@ -451,3 +451,8 @@ html {
     left: -5px;
   }
 }
+
+.lp-actions > a {
+  height: 36px;
+  padding: 0 16px;
+}
