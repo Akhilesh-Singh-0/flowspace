@@ -81,8 +81,8 @@ export function ProjectCard({
       href={`/workspaces/${workspaceId}/projects/${project.id}`}
       className="block rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
-      <div className="group flex h-11 cursor-pointer items-center justify-between gap-4 rounded-md px-3 transition-colors hover:bg-surface-hover">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="group flex cursor-pointer items-start justify-between gap-4 rounded-md px-3 py-2.5 transition-colors hover:bg-surface-hover">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-bone-subtle">
             <FolderKanban size={14} className="text-text-secondary" />
           </div>
@@ -120,12 +120,12 @@ export function ProjectCard({
               </button>
             </div>
           ) : (
-            <div className="flex min-w-0 items-baseline gap-2">
-              <p className="truncate text-medium font-semibold text-foreground">
+            <div className="min-w-0 pt-1">
+              <p className="break-words text-medium font-semibold text-foreground">
                 {project.title}
               </p>
               {project.description && (
-                <p className="truncate text-small text-text-secondary">
+                <p className="mt-0.5 max-w-3xl break-words text-small leading-relaxed text-text-secondary">
                   {project.description}
                 </p>
               )}
@@ -134,7 +134,7 @@ export function ProjectCard({
         </div>
 
         {!editing && (
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex h-7 shrink-0 items-center gap-3">
             {timeAgo !== '' && (
               <span className="text-small tabular-nums text-text-secondary">
                 {timeAgo}
