@@ -3,14 +3,13 @@
 import { useMembers, useRemoveMember } from '@/hooks/use-members'
 import { useUser } from '@clerk/nextjs'
 import type { WorkspaceMember } from '@/types'
-import { cn } from '@/lib/utils'
 import { UserMinus } from 'lucide-react'
 
-const roleConfig = {
-  OWNER:  { label: 'Owner',  className: 'bg-primary/10 text-primary' },
-  ADMIN:  { label: 'Admin',  className: 'bg-violet-400/10 text-violet-400' },
-  MEMBER: { label: 'Member', className: 'bg-blue-400/10 text-blue-400' },
-  VIEWER: { label: 'Viewer', className: 'bg-slate-400/10 text-slate-400' },
+const roleLabels: Record<string, string> = {
+  OWNER: 'Owner',
+  ADMIN: 'Admin',
+  MEMBER: 'Member',
+  VIEWER: 'Viewer',
 }
 
 function MemberItem({
@@ -25,7 +24,7 @@ function MemberItem({
   canManageMembers: boolean
 }) {
   const { mutate: removeMember, isPending } = useRemoveMember(workspaceId)
-  const role = roleConfig[member.role]
+  const roleLabel = roleLabels[member.role] ?? member.role
 
   const initials = member.user.name
     ? member.user.name.slice(0, 2).toUpperCase()
@@ -37,37 +36,38 @@ function MemberItem({
   const canRemove = canManageMembers && !isSelf && member.role !== 'OWNER'
 
   return (
-    <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)]">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold shrink-0 transition-colors duration-200 group-hover:bg-primary/20">
+    <div className="group flex h-11 items-center justify-between gap-4 rounded-md px-3 transition-colors hover:bg-surface-hover">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bone-subtle text-small font-semibold text-foreground">
           {initials}
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-normal text-foreground truncate">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <p className="truncate text-medium font-semibold text-foreground">
             {member.user.name ?? 'Unknown'}
           </p>
-          <p className="text-sm text-muted-foreground truncate">
+          <p className="truncate text-small text-text-secondary">
             {member.user.email || 'No email'}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 shrink-0 ml-4">
-        <span className={cn('text-sm px-2.5 py-1 rounded-full font-normal', role.className)}>
-          {role.label}
+      <div className="flex shrink-0 items-center gap-2">
+        <span className="w-16 text-right text-small text-text-secondary">
+          {roleLabel}
         </span>
-        {canRemove && (
-          <div className="flex items-center rounded-md border border-border bg-secondary px-0.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <div className="flex h-7 w-7 items-center justify-center">
+          {canRemove && (
             <button
               onClick={() => removeMember(member.user.id)}
               disabled={isPending}
+              aria-label="Remove member"
               title="Remove member"
-              className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150 disabled:opacity-50"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-text-secondary opacity-0 transition-[color,opacity] hover:bg-surface-raised hover:text-priority-urgent focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring group-hover:opacity-100 disabled:opacity-50"
             >
-              <UserMinus className="w-3 h-3" />
+              <UserMinus className="h-3.5 w-3.5" />
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
@@ -101,29 +101,38 @@ export function MemberList({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="-mx-3 space-y-0.5">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 rounded-lg border border-border bg-card animate-pulse" />
+          <div key={i} className="flex h-11 animate-pulse items-center gap-3 px-3">
+            <div className="h-7 w-7 rounded-full bg-surface-hover" />
+            <div className="h-4 w-40 rounded-md bg-surface-hover" />
+          </div>
         ))}
       </div>
     )
   }
 
   if (isError) {
-    return <p className="text-sm text-destructive">Failed to load members. Please try again.</p>
+    return (
+      <p className="text-medium text-destructive">
+        Failed to load members. Please try again.
+      </p>
+    )
   }
 
   if (!members || members.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-        <p className="text-sm font-normal text-foreground">No members yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">Invite someone to collaborate</p>
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <p className="text-medium font-semibold text-foreground">No members yet</p>
+        <p className="mt-1 text-medium text-text-secondary">
+          Invite someone to collaborate
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="-mx-3 space-y-0.5">
       {members.map((member) => (
         <MemberItem
           key={member.user.id}
