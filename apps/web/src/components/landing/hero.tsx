@@ -12,7 +12,6 @@ export function Hero() {
             <p className="lp-lede">
               FlowSpace organizes work into workspaces and projects, with list
               and board views, assignees, due dates, labels and comments.
-              Updates reach everyone on the project as they happen.
             </p>
 
             <div className="lp-actions">
