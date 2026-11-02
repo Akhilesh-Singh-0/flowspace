@@ -13,22 +13,14 @@ export function Footer() {
           <small>© 2026 FlowSpace</small>
         </div>
 
-        <nav className="lp-footer-links" aria-label="Footer">
-          <a
-            href="https://github.com/Akhilesh-Singh-0/flowspace"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="lp-text-link"
-          >
-            GitHub
-          </a>
-          <Link href="/sign-in" className="lp-text-link">
-            Sign in
-          </Link>
-          <Link href="/sign-up" className="lp-text-link">
-            Get started
-          </Link>
-        </nav>
+        <a
+          href="https://github.com/Akhilesh-Singh-0/flowspace"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lp-text-link"
+        >
+          Source on GitHub
+        </a>
       </div>
     </footer>
   );

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Reveal } from "@/components/landing/reveal";
 
 const statuses = [
   { label: "Backlog", color: "var(--status-backlog)", hollow: true },
@@ -49,15 +50,17 @@ export function Features() {
             </ul>
           </div>
 
-          <div className="lp-shot">
-            <Image
-              src="/landing/board.png"
-              alt="FlowSpace board view with tasks grouped into Backlog, In Progress, In Review, Done and Cancelled columns"
-              width={2876}
-              height={1620}
-              sizes="(min-width: 1120px) 640px, 100vw"
-            />
-          </div>
+          <Reveal className="lp-fade">
+            <div className="lp-shot">
+              <Image
+                src="/landing/board.png"
+                alt="FlowSpace board view with tasks grouped into Backlog, In Progress, In Review, Done and Cancelled columns"
+                width={2876}
+                height={1620}
+                sizes="(min-width: 1120px) 640px, 100vw"
+              />
+            </div>
+          </Reveal>
         </div>
 
         <div className="lp-feature lp-feature-reverse">
@@ -77,15 +80,17 @@ export function Features() {
             </dl>
           </div>
 
-          <div className="lp-shot">
-            <Image
-              src="/landing/members.png"
-              alt="FlowSpace members page listing four people with Owner, Admin, Member and Viewer roles"
-              width={2880}
-              height={1800}
-              sizes="(min-width: 1120px) 640px, 100vw"
-            />
-          </div>
+          <Reveal className="lp-fade">
+            <div className="lp-shot">
+              <Image
+                src="/landing/members.png"
+                alt="FlowSpace members page listing four people with Owner, Admin, Member and Viewer roles"
+                width={2880}
+                height={1800}
+                sizes="(min-width: 1120px) 640px, 100vw"
+              />
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

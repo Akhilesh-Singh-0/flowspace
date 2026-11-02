@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { Reveal } from "@/components/landing/reveal";
 
 const steps = [
   {
@@ -39,18 +40,22 @@ export function Workflow() {
           </p>
         </div>
 
-        <ol className="lp-steps">
-          {steps.map((step) => (
-            <li
-              key={step.name}
-              className={`lp-step${step.hollow ? " lp-step-hollow" : ""}`}
-              style={{ "--step-color": step.color } as CSSProperties}
-            >
-              <h3 className="lp-step-title">{step.name}</h3>
-              <p className="lp-step-text">{step.text}</p>
-            </li>
-          ))}
-        </ol>
+        <Reveal className="lp-draw">
+          <ol className="lp-steps">
+            {steps.map((step, index) => (
+              <li
+                key={step.name}
+                className={`lp-step${step.hollow ? " lp-step-hollow" : ""}`}
+                style={
+                  { "--step-color": step.color, "--i": index } as CSSProperties
+                }
+              >
+                <h3 className="lp-step-title">{step.name}</h3>
+                <p className="lp-step-text">{step.text}</p>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
       </div>
     </section>
   );
