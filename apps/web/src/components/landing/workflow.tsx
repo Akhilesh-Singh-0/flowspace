@@ -32,7 +32,7 @@ export function Workflow() {
   return (
     <section id="workflow" className="lp-section">
       <div className="lp-container">
-        <div className="lp-section-head">
+        <div className="lp-section-head lp-split">
           <h2 className="lp-h2">How a task moves through a project.</h2>
           <p className="lp-copy">
             A task always has exactly one status. Change it from the task panel
@@ -41,20 +41,37 @@ export function Workflow() {
         </div>
 
         <Reveal className="lp-draw">
-          <ol className="lp-steps">
-            {steps.map((step, index) => (
-              <li
-                key={step.name}
-                className={`lp-step${step.hollow ? " lp-step-hollow" : ""}`}
-                style={
-                  { "--step-color": step.color, "--i": index } as CSSProperties
-                }
-              >
-                <h3 className="lp-step-title">{step.name}</h3>
-                <p className="lp-step-text">{step.text}</p>
-              </li>
-            ))}
-          </ol>
+          <div className="lp-track">
+            <div className="lp-chip" aria-hidden="true">
+              <span className="lp-chip-title">
+                Refactor authentication middleware
+              </span>
+              <span className="lp-chip-meta">
+                <span className="lp-chip-priority">
+                  <span className="lp-bars lp-bars-urgent">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                  Urgent
+                </span>
+                <span className="lp-chip-dot" />
+              </span>
+            </div>
+
+            <ol className="lp-steps">
+              {steps.map((step) => (
+                <li
+                  key={step.name}
+                  className={`lp-step${step.hollow ? " lp-step-hollow" : ""}`}
+                  style={{ "--step-color": step.color } as CSSProperties}
+                >
+                  <h3 className="lp-step-title">{step.name}</h3>
+                  <p className="lp-step-text">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </Reveal>
       </div>
     </section>

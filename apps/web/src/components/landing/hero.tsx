@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { HeroDemo } from "@/components/landing/hero-demo";
 
 export function Hero() {
   return (
@@ -23,15 +23,8 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="lp-shot">
-          <Image
-            src="/landing/tasks.png"
-            alt="FlowSpace task list with one task open in the detail panel, showing its status, priority, due date, assignee, labels and comments"
-            width={2880}
-            height={1800}
-            sizes="(min-width: 1120px) 1072px, 100vw"
-            priority
-          />
+        <div className="lp-hero-demo">
+          <HeroDemo />
         </div>
       </div>
     </section>
