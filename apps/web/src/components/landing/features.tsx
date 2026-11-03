@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Reveal } from "@/components/landing/reveal";
+import { TaskDemo } from "@/components/landing/task-demo";
 
 const statuses = [
   { label: "Backlog", color: "var(--status-backlog)", hollow: true },
@@ -26,11 +26,12 @@ export function Features() {
 
         <div className="lp-feature">
           <div className="lp-feature-copy">
-            <h3 className="lp-h3">Move work from backlog to done</h3>
+            <h3 className="lp-h3">Assign it, discuss it, move it forward</h3>
             <p className="lp-copy">
-              Every task has a status, a priority, an assignee and an optional
-              due date. View them as a list or a board, search by title, and
-              filter by status or priority.
+              Open any task to set its status, priority and due date, assign it
+              to someone and keep the conversation in its comments. See your
+              tasks as a list or a board, search by title, and filter by status
+              or priority.
             </p>
             <ul className="lp-statuses">
               {statuses.map((status) => (
@@ -50,17 +51,7 @@ export function Features() {
             </ul>
           </div>
 
-          <Reveal className="lp-fade">
-            <div className="lp-shot">
-              <Image
-                src="/landing/board.png"
-                alt="FlowSpace board view with tasks grouped into Backlog, In Progress, In Review, Done and Cancelled columns"
-                width={2876}
-                height={1620}
-                sizes="(min-width: 1120px) 640px, 100vw"
-              />
-            </div>
-          </Reveal>
+          <TaskDemo />
         </div>
 
         <div className="lp-feature lp-feature-reverse">
@@ -80,17 +71,15 @@ export function Features() {
             </dl>
           </div>
 
-          <Reveal className="lp-fade">
-            <div className="lp-shot">
-              <Image
-                src="/landing/members.png"
-                alt="FlowSpace members page listing four people with Owner, Admin, Member and Viewer roles"
-                width={2880}
-                height={1800}
-                sizes="(min-width: 1120px) 640px, 100vw"
-              />
-            </div>
-          </Reveal>
+          <div className="lp-shot">
+            <Image
+              src="/landing/members.png"
+              alt="FlowSpace members page listing four people with Owner, Admin, Member and Viewer roles"
+              width={2880}
+              height={1800}
+              sizes="(min-width: 1120px) 640px, 100vw"
+            />
+          </div>
         </div>
       </div>
     </section>
