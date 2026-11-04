@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { MembersDemo } from "@/components/landing/members-demo";
 import { TaskDemo } from "@/components/landing/task-demo";
 
 const statuses = [
@@ -71,15 +71,7 @@ export function Features() {
             </dl>
           </div>
 
-          <div className="lp-shot">
-            <Image
-              src="/landing/members.png"
-              alt="FlowSpace members page listing four people with Owner, Admin, Member and Viewer roles"
-              width={2880}
-              height={1800}
-              sizes="(min-width: 1120px) 640px, 100vw"
-            />
-          </div>
+          <MembersDemo />
         </div>
       </div>
     </section>

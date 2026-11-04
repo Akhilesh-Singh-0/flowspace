@@ -1,8 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
 import {
-  ChevronDown,
   FolderKanban,
   LayoutDashboard,
   List,
@@ -10,7 +8,14 @@ import {
   Users,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { Bars, StatusDot } from "@/components/landing/demo-parts";
+import {
+  Bars,
+  Btn,
+  Empty,
+  Field,
+  Head,
+  StatusDot,
+} from "@/components/landing/demo-parts";
 import { typing, useScript, type Frame } from "@/components/landing/use-script";
 
 type HeroState = {
@@ -82,99 +87,6 @@ const frames: Frame<HeroState>[] = [
   [700, { pressed: "task-create" }],
   [220, { pressed: null, dialog: null, focus: null, hasTask: true }],
 ];
-
-function Head({
-  title,
-  text,
-  children,
-}: {
-  title: string;
-  text: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="lp-app-head">
-      <div>
-        <p className="lp-app-title">{title}</p>
-        <p className="lp-app-sub">{text}</p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Btn({
-  children,
-  pressed,
-  ghost,
-}: {
-  children: ReactNode;
-  pressed?: boolean;
-  ghost?: boolean;
-}) {
-  return (
-    <span
-      className={`lp-app-btn${ghost ? " lp-app-btn-ghost" : ""}${
-        pressed ? " is-pressed" : ""
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-function Empty({
-  title,
-  text,
-  children,
-}: {
-  title: string;
-  text: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="lp-app-empty">
-      <p className="lp-app-empty-title">{title}</p>
-      <p className="lp-app-empty-text">{text}</p>
-      {children}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  placeholder,
-  focus,
-  tall,
-  select,
-}: {
-  label: string;
-  value?: string;
-  placeholder?: string;
-  focus?: boolean;
-  tall?: boolean;
-  select?: boolean;
-}) {
-  return (
-    <div className="lp-fld">
-      <span className="lp-fld-label">{label}</span>
-      <div
-        className={`lp-fld-box${tall ? " is-tall" : ""}${
-          focus ? " is-focus" : ""
-        }`}
-      >
-        {value ? (
-          <span>{value}</span>
-        ) : (
-          <span className="lp-fld-ph">{placeholder}</span>
-        )}
-        {focus && !select && <span className="lp-caret" />}
-        {select && <ChevronDown className="lp-fld-chev" size={16} />}
-      </div>
-    </div>
-  );
-}
 
 export function HeroDemo() {
   const [ref, s] = useScript(initial, frames);

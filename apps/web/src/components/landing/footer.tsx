@@ -64,9 +64,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="lp-footer-mark" aria-hidden="true">
-          <Logo size={160} className="lp-mark" />
-          <span className="lp-footer-word">FlowSpace</span>
+        <div className="lp-footer-mark-wrap" aria-hidden="true">
+          <div className="lp-footer-mark">
+            <Logo size={160} className="lp-mark" />
+            <span className="lp-footer-word">FlowSpace</span>
+          </div>
         </div>
 
         <p className="lp-footer-base">© 2026 FlowSpace</p>
