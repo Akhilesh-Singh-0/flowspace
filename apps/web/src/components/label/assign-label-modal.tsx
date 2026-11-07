@@ -1,16 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { LabelBadge } from '@/components/label/label-badge'
 import { useCreateLabel } from '@/hooks/use-labels'
 
 const PRESET_COLORS = [
-  '#6366f1', '#8b5cf6', '#a855f7',
-  '#ec4899', '#ef4444', '#f97316',
-  '#eab308', '#22c55e', '#14b8a6',
-  '#3b82f6', '#06b6d4', '#64748b',
+  '#5fa8a0', '#6baa7f', '#a9b04f',
+  '#d4a24c', '#d08a4a', '#c9625d',
+  '#b8737c', '#8b84b8', '#6f8fb5',
+  '#a58b6f', '#8a8982', '#e8e3d6',
 ]
 
 export function AssignLabelModal({
@@ -46,91 +54,65 @@ export function AssignLabelModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose() }}>
-      <DialogContent className="sm:max-w-sm bg-card border-border">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-base font-semibold text-foreground">
-            Add Label
-          </DialogTitle>
+          <DialogTitle>Add label</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 pt-1">
-
-          {/* Label name */}
+        <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Label name
-            </label>
+            <Label htmlFor="label-name">Label name</Label>
             <Input
+              id="label-name"
               placeholder="e.g. Bug, Feature, Design…"
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit() }}
-              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground/50"
               autoFocus
             />
           </div>
 
-          {/* Color picker */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Color
-            </label>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
+            <Label>Color</Label>
+            <div
+              role="group"
+              aria-label="Label color"
+              className="flex flex-wrap gap-2.5"
+            >
               {PRESET_COLORS.map((c) => (
                 <button
                   key={c}
+                  type="button"
                   onClick={() => setColor(c)}
-                  className="w-6 h-6 rounded-full transition-transform duration-150 hover:scale-110 focus:outline-none"
+                  aria-label={`Color ${c}`}
+                  aria-pressed={color === c}
+                  className={`h-6 w-6 rounded-full transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-popover ${
+                    color === c
+                      ? 'ring-2 ring-foreground ring-offset-2 ring-offset-popover'
+                      : ''
+                  }`}
                   style={{ backgroundColor: c }}
-                >
-                  {color === c && (
-                    <span className="flex items-center justify-center w-full h-full text-white text-[10px] font-bold">
-                      ✓
-                    </span>
-                  )}
-                </button>
+                />
               ))}
             </div>
 
-            {/* Preview */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-xs text-muted-foreground">Preview:</span>
-              <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
-                style={{
-                  backgroundColor: `${color}18`,
-                  borderColor: `${color}40`,
-                  color: color,
-                }}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                {name.trim() || 'Label'}
-              </span>
+              <span className="text-small text-text-secondary">Preview</span>
+              <LabelBadge name={name.trim() || 'Label'} color={color} />
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-1">
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-              className="text-muted-foreground"
-            >
+          <DialogFooter>
+            <Button variant="ghost" onClick={onClose} disabled={isPending}>
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={!name.trim() || isPending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              {isPending ? 'Adding…' : 'Add Label'}
+              {isPending ? 'Adding…' : 'Add label'}
             </Button>
-          </div>
-
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

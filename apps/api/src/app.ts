@@ -21,11 +21,20 @@ export const createApp = () => {
   const app = express()
 
   app.use(helmet())
+  const allowedOrigins = [
+  process.env.FRONTEND_URL || 'https://flowspace-web-sigma.vercel.app',
+  'http://localhost:3001',
+  ]
+
   app.use(
     cors({
-      origin:
-        process.env.FRONTEND_URL ||
-        'https://flowspace-web-sigma.vercel.app',
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true)
+        } else {
+          callback(new Error(`Origin ${origin} not allowed by CORS`))
+        }
+      },
       credentials: true,
     })
   )

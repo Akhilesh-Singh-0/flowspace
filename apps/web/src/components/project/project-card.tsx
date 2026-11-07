@@ -77,20 +77,19 @@ export function ProjectCard({
   }
 
   return (
-    <Link href={`/workspaces/${workspaceId}/projects/${project.id}`}>
-      <div className="group flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/30 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] cursor-pointer active:scale-[0.995]">
-
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary transition-colors duration-200 group-hover:bg-primary/20 shrink-0">
-            <FolderKanban
-              size={15}
-              className="text-muted-foreground transition-colors duration-200 group-hover:text-primary"
-            />
+    <Link
+      href={`/workspaces/${workspaceId}/projects/${project.id}`}
+      className="block rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+    >
+      <div className="group flex cursor-pointer items-start justify-between gap-4 rounded-md px-3 py-2.5 transition-colors hover:bg-surface-hover">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-bone-subtle">
+            <FolderKanban size={14} className="text-text-secondary" />
           </div>
 
           {editing ? (
             <div
-              className="flex items-center gap-2 flex-1 min-w-0"
+              className="flex min-w-0 flex-1 items-center gap-2"
               onClick={(e) => e.preventDefault()}
             >
               <input
@@ -102,27 +101,31 @@ export function ProjectCard({
                   if (e.key === 'Escape') handleEditCancel(e)
                 }}
                 onClick={(e) => e.preventDefault()}
-                className="flex-1 bg-secondary border border-primary/40 rounded-md px-3 py-1.5 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                className="h-8 flex-1 rounded-md border border-ring bg-surface px-3 text-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
               <button
                 onClick={handleEditSave}
                 disabled={isUpdating}
-                className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 hover:border-primary/40 transition-all duration-150 shrink-0"
+                aria-label="Save title"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-bone text-text-inverse transition-colors hover:bg-bone-hover disabled:opacity-50"
               >
-                <Check className="w-3.5 h-3.5" />
+                <Check className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={handleEditCancel}
-                className="flex items-center justify-center w-7 h-7 rounded-md bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-150 shrink-0"
+                aria-label="Cancel editing"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line bg-surface-raised text-text-secondary transition-colors hover:bg-surface-hover hover:text-foreground"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ) : (
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground">{project.title}</p>
+            <div className="min-w-0 pt-1">
+              <p className="break-words text-medium font-semibold text-foreground">
+                {project.title}
+              </p>
               {project.description && (
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                <p className="mt-0.5 max-w-3xl break-words text-small leading-relaxed text-text-secondary">
                   {project.description}
                 </p>
               )}
@@ -131,29 +134,31 @@ export function ProjectCard({
         </div>
 
         {!editing && (
-          <div className="flex items-center gap-3 shrink-0 ml-4">
+          <div className="flex h-7 shrink-0 items-center gap-3">
             {timeAgo !== '' && (
-              <span className="text-xs text-muted-foreground/50 tabular-nums">
+              <span className="text-small tabular-nums text-text-secondary">
                 {timeAgo}
               </span>
             )}
 
             {canManage && (
-              <div className="flex items-center gap-0.5 rounded-md border border-border bg-secondary px-0.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+              <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                 <button
                   onClick={handleEditStart}
+                  aria-label="Edit project"
                   title="Edit project"
-                  className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-150"
+                  className="flex h-6 w-6 items-center justify-center rounded text-text-secondary transition-colors hover:bg-surface-raised hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <Pencil className="w-3 h-3" />
+                  <Pencil className="h-3 w-3" />
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
+                  aria-label="Delete project"
                   title="Delete project"
-                  className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-400/10 transition-all duration-150"
+                  className="flex h-6 w-6 items-center justify-center rounded text-text-secondary transition-colors hover:bg-surface-raised hover:text-priority-urgent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="h-3 w-3" />
                 </button>
               </div>
             )}

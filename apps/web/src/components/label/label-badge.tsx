@@ -10,33 +10,23 @@ export function LabelBadge({
   onRemove?: () => void
 }) {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
-      style={{
-        backgroundColor: `${color}18`,
-        borderColor: `${color}50`,
-        color: color,
-      }}
-    >
+    <span className="inline-flex h-6 items-center gap-1.5 rounded-md bg-surface-hover px-2 text-small font-semibold text-foreground">
       <span
-        className="w-1.5 h-1.5 rounded-full shrink-0"
+        className="h-1.5 w-1.5 shrink-0 rounded-full"
         style={{ backgroundColor: color }}
       />
       {name}
       {onRemove && (
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation()
             onRemove()
           }}
-          className="ml-0.5 flex items-center justify-center w-3.5 h-3.5 rounded-full border transition-all duration-150 hover:brightness-125"
-          style={{
-            backgroundColor: `${color}25`,
-            borderColor: `${color}60`,
-            color: color,
-          }}
+          aria-label={`Remove label ${name}`}
+          className="-mr-0.5 flex h-4 w-4 items-center justify-center rounded text-text-secondary transition-colors hover:text-foreground"
         >
-          <X size={9} strokeWidth={3} />
+          <X size={10} strokeWidth={2.5} />
         </button>
       )}
     </span>

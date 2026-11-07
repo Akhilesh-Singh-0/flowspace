@@ -1,17 +1,6 @@
 import Link from "next/link";
-import { ArrowUpRight, Layers3 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-
-function Brand() {
-  return (
-    <Link href="/" className="fs-brand" aria-label="FlowSpace home">
-      <span className="fs-brand-mark" aria-hidden="true">
-        <Layers3 size={17} strokeWidth={1.8} />
-      </span>
-      <span>FlowSpace</span>
-    </Link>
-  );
-}
 
 function GitHubIcon() {
   return (
@@ -29,38 +18,35 @@ function GitHubIcon() {
 
 export function Navbar() {
   return (
-    <header className="fs-navbar">
-      <nav className="fs-navbar-inner" aria-label="Main navigation">
-        <div className="fs-navbar-brand">
-          <Brand />
+    <header className="lp-nav">
+      <nav className="lp-container lp-nav-inner" aria-label="Main navigation">
+        <Link href="/" className="lp-brand" aria-label="FlowSpace home">
+          <Logo size={22} />
+          FlowSpace
+        </Link>
+
+        <div className="lp-nav-links">
+          <a href="#features">Features</a>
+          <a href="#workflow">Workflow</a>
         </div>
 
-        <div className="fs-navbar-links">
-          <a href="#product">Product</a>
-          <a href="#docs">Docs</a>
-          <a href="#help">Help</a>
-        </div>
-
-        <div className="fs-navbar-actions">
+        <div className="lp-nav-actions">
           <a
-            href="https://github.com"
+            href="https://github.com/Akhilesh-Singh-0/flowspace"
             target="_blank"
             rel="noopener noreferrer"
-            className="fs-navbar-github"
-            aria-label="GitHub"
+            className="lp-icon-link"
+            aria-label="FlowSpace on GitHub"
             title="GitHub"
           >
             <GitHubIcon />
           </a>
 
-          <Link href="/sign-in" className="fs-navbar-signin">
+          <Link href="/sign-in" className="lp-text-link">
             Sign in
           </Link>
 
-          <Button href="/sign-up" variant="primary">
-            Get started
-            <ArrowUpRight size={14} />
-          </Button>
+          <Button href="/sign-up">Get started</Button>
         </div>
       </nav>
     </header>

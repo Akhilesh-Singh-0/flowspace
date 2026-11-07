@@ -1,48 +1,69 @@
+import Image from 'next/image'
 import type { Task } from '@/types'
-import { cn } from '@/lib/utils'
 import { useMembers } from '@/hooks/use-members'
 
-const statusConfig = {
-  BACKLOG:     { label: 'Backlog',     dot: 'bg-slate-400',   className: 'bg-slate-400/10 text-slate-400' },
-  IN_PROGRESS: { label: 'In Progress', dot: 'bg-blue-400',    className: 'bg-blue-400/10 text-blue-400' },
-  IN_REVIEW:   { label: 'In Review',   dot: 'bg-violet-400',  className: 'bg-violet-400/10 text-violet-400' },
-  DONE:        { label: 'Done',        dot: 'bg-emerald-400', className: 'bg-emerald-400/10 text-emerald-400' },
-  CANCELLED:   { label: 'Cancelled',   dot: 'bg-rose-400',    className: 'bg-rose-400/10 text-rose-400' },
+const statuses = {
+  BACKLOG: { label: 'Backlog', color: 'var(--status-backlog)', hollow: true },
+  IN_PROGRESS: { label: 'In Progress', color: 'var(--status-progress)', hollow: false },
+  IN_REVIEW: { label: 'In Review', color: 'var(--status-review)', hollow: false },
+  DONE: { label: 'Done', color: 'var(--status-done)', hollow: false },
+  CANCELLED: { label: 'Cancelled', color: 'var(--status-cancelled)', hollow: false },
 }
 
-const priorityConfig = {
-  URGENT: { label: 'Urgent', bar: 'bg-rose-400',   text: 'text-rose-400' },
-  HIGH:   { label: 'High',   bar: 'bg-orange-400', text: 'text-orange-400' },
-  MEDIUM: { label: 'Medium', bar: 'bg-sky-400',    text: 'text-sky-400' },
-  LOW:    { label: 'Low',    bar: 'bg-slate-400',  text: 'text-slate-400' },
+const priorityLevels: Record<string, number> = {
+  LOW: 1,
+  MEDIUM: 2,
+  HIGH: 3,
+  URGENT: 3,
 }
 
-function AssigneeAvatar({ assigneeId, workspaceId }: { assigneeId: string; workspaceId: string }) {
+export function PriorityGlyph({ priority }: { priority: string }) {
+  const level = priorityLevels[priority] ?? 1
+  const urgent = priority === 'URGENT'
+
+  return (
+    <span className="flex h-3 items-end gap-0.5" aria-hidden="true">
+      {[1, 2, 3].map((bar) => (
+        <span
+          key={bar}
+          className={`w-[3px] rounded-[1px] ${
+            bar <= level
+              ? urgent
+                ? 'bg-priority-urgent'
+                : 'bg-text-secondary'
+              : 'bg-line-strong'
+          }`}
+          style={{ height: `${bar * 4}px` }}
+        />
+      ))}
+    </span>
+  )
+}
+
+function Assignee({ id, workspaceId }: { id: string; workspaceId: string }) {
   const { data: members } = useMembers(workspaceId)
-  const member = members?.find((m) => m.user.id === assigneeId)
+  const member = members?.find(({ user }) => user.id === id)
+
   if (!member) return null
 
   const name = member.user.name ?? member.user.email ?? ''
-  const initials = name.slice(0, 2).toUpperCase()
 
-  if (member.user.avatarUrl) {
-    return (
-      <img
-        src={member.user.avatarUrl}
-        alt={name}
-        title={name}
-        className="w-6 h-6 rounded-full border border-border object-cover shrink-0"
-      />
-    )
-  }
-
-  return (
-    <div
+  return member.user.avatarUrl ? (
+    <Image
+      src={member.user.avatarUrl}
+      alt={name}
       title={name}
-      className="w-6 h-6 rounded-full bg-primary/15 text-primary flex items-center justify-center text-[10px] font-semibold shrink-0 border border-primary/20"
+      width={24}
+      height={24}
+      className="h-6 w-6 rounded-full object-cover"
+    />
+  ) : (
+    <span
+      title={name}
+      className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-hover text-small font-semibold text-foreground"
     >
-      {initials}
-    </div>
+      {name.slice(0, 2).toUpperCase()}
+    </span>
   )
 }
 
@@ -50,45 +71,55 @@ export function TaskCard({
   task,
   onClick,
   workspaceId,
+  selected = false,
 }: {
   task: Task
   onClick?: () => void
   workspaceId?: string
+  selected?: boolean
 }) {
-  const status = statusConfig[task.status]
-  const priority = priorityConfig[task.priority]
+  const status = statuses[task.status]
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className="group relative flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3.5 transition-all duration-200 hover:bg-accent hover:border-primary/20 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.1)] cursor-pointer active:scale-[0.995] overflow-hidden"
+      className={`relative grid h-10 w-full grid-cols-[96px_minmax(0,1fr)_120px_132px] items-center gap-4 rounded-md px-3 text-left transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${
+        selected
+          ? 'bg-surface-hover before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-bone'
+          : ''
+      }`}
     >
-      <span
-        className={cn(
-          'absolute left-0 top-0 h-full w-[3px] rounded-l-lg transition-opacity duration-200 opacity-40 group-hover:opacity-80',
-          priority.bar
-        )}
-      />
+      <span className="flex items-center gap-2 text-medium text-text-secondary">
+        <PriorityGlyph priority={task.priority} />
+        {task.priority.charAt(0) + task.priority.slice(1).toLowerCase()}
+      </span>
 
-      <div className="flex items-center gap-3 min-w-0 pl-1 flex-1">
-        <span className={cn('shrink-0 text-xs font-medium w-14', priority.text)}>
-          {priority.label}
-        </span>
-        <p className="text-sm text-foreground truncate">{task.title}</p>
-      </div>
+      <span className="truncate text-medium font-semibold text-foreground">
+        {task.title}
+      </span>
 
-      <div className="flex items-center gap-3 shrink-0 ml-4">
-        {task.assigneeId && workspaceId && (
-          <AssigneeAvatar assigneeId={task.assigneeId} workspaceId={workspaceId} />
+      <span>
+        {task.assigneeId && workspaceId ? (
+          <Assignee id={task.assigneeId} workspaceId={workspaceId} />
+        ) : (
+          <span className="text-medium text-text-placeholder">Unassigned</span>
         )}
-        <span className={cn(
-          'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition-colors duration-200',
-          status.className
-        )}>
-          <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', status.dot)} />
-          {status.label}
-        </span>
-      </div>
-    </div>
+      </span>
+
+      <span className="flex items-center gap-2 text-medium text-text-secondary">
+        <span
+          className={`h-2 w-2 shrink-0 rounded-full ${
+            status.hollow ? 'border-[1.5px]' : ''
+          }`}
+          style={
+            status.hollow
+              ? { borderColor: status.color }
+              : { backgroundColor: status.color }
+          }
+        />
+        {status.label}
+      </span>
+    </button>
   )
 }

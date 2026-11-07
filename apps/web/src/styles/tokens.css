@@ -1,0 +1,128 @@
+:root {
+
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+
+  --text-small: 12px;
+  --leading-small: 16px;
+  --text-medium: 14px;
+  --leading-medium: 20px;
+  --text-large: 20px;
+  --leading-large: 28px;
+
+  --weight-regular: 400;
+  --weight-semibold: 600;
+
+  --row-height: 36px;
+  --control-height: 32px;
+
+  --color-canvas: #0c0c0d;
+  --color-sidebar: #131416;
+  --color-surface: #17191b;
+  --color-surface-raised: #1b1c1c;
+  --color-surface-hover: #202224;
+
+  --color-border-subtle: #1f2123;
+  --color-border: #272a2c;
+  --color-border-strong: #363a3d;
+
+  --color-text: #ececea;
+  --color-text-secondary: #c9c8c2;
+  --color-text-placeholder: #9a9992;
+  --color-text-inverse: #151514;
+
+  --color-accent: #e8e3d6;
+  --color-accent-hover: #f2eee4;
+  --color-accent-muted: #b9b4a7;
+  --color-accent-subtle: rgb(232 227 214 / 8%);
+
+  --color-success: #6baa7f;
+  --color-info: #5fa8a0;
+  --color-warning: #d4a24c;
+  --color-danger: #c9625d;
+  --color-neutral: #8a8982;
+
+  --status-backlog: var(--color-neutral);
+  --status-progress: var(--color-warning);
+  --status-review: var(--color-info);
+  --status-done: var(--color-success);
+  --status-cancelled: #6b6a64;
+
+  --priority-low: var(--color-text-secondary);
+  --priority-medium: var(--color-text-secondary);
+  --priority-high: var(--color-text-secondary);
+  --priority-urgent: var(--color-danger);
+
+  --radius-none: 0;
+  --radius-small: 3px;
+  --radius-medium: 5px;
+  --radius-large: 8px;
+
+  --shadow-none: none;
+  --shadow-sidebar: none;
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 40%);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --background: 240 4% 5%;
+  --foreground: 60 5% 92%;
+
+  --card: 180 2% 11%;
+  --card-foreground: 60 5% 92%;
+
+  --popover: 180 2% 11%;
+  --popover-foreground: 60 5% 92%;
+
+  --primary: 43 28% 87%;
+  --primary-foreground: 60 2% 8%;
+
+  --secondary: 210 6% 13%;
+  --secondary-foreground: 60 5% 92%;
+
+  --muted: 210 6% 13%;
+  --muted-foreground: 51 6% 77%;
+
+  --accent: 210 6% 15%;
+  --accent-foreground: 60 5% 92%;
+
+  --destructive: 3 50% 58%;
+  --destructive-foreground: 60 2% 8%;
+
+  --border: 210 6% 16%;
+  --input: 210 6% 22%;
+  --ring: 43 28% 87%;
+
+  --color-brand-rose: #b8737c;
+  --color-brand-charcoal: #6b6a64;
+  --color-brand-blue: #6f8fb5;
+  --color-brand-green: var(--color-success);
+  --color-brand-amber: var(--color-warning);
+
+  --color-text-tertiary: var(--color-text-secondary);
+  --weight-medium: 600;
+
+  --text-xs: var(--text-small);
+  --text-sm: var(--text-medium);
+  --text-base: var(--text-medium);
+  --text-2xl: var(--text-large);
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-text-inverse);
+  --color-secondary-foreground: var(--color-text);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-text-inverse);
+
+  --radius: var(--radius-medium);
+}
